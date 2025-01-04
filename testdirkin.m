@@ -23,7 +23,11 @@
   Pdd = Habs(:,:,6)*P
 
   plotareaxy2(L,2)
+  saveas(gcf, "../Img/areaxy.jpg")
+  plotareaxz2(L,6)
+  saveas(gcf, "../Img/areaxz.jpg")
   plotareayz2(L,4)
+  saveas(gcf, "../Img/areayz.jpg")
 
   % Test inverse kinematic
   [Qi, Qdi, Qddi] = invkin(L,P(1:3,end),Pd(1:3,end),Pdd(1:3,end))
@@ -37,7 +41,7 @@
 
   plotmanipulator2(Q,L,'g',1)   
   legend('Links','','','Joints','End-effector')
-
+  
   %% Test inverse dynamics for links 6-5
   m = [1 1 1 1 1];
   for i = 1:1:length(L)

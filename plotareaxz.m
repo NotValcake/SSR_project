@@ -1,4 +1,4 @@
-function plotareayz2(L, fig)
+function plotareayz(L, fig)
     % plotareayz - Plot dell'area di lavoro (workspace) di un manipolatore 3D nel piano Y-Z.
     %
     % Questa funzione calcola e visualizza l'area di lavoro di un manipolatore nel piano Y-Z.
@@ -27,13 +27,13 @@ function plotareayz2(L, fig)
     l5   = L(5);
 
     % Definire le equazioni di posizione dell gripper
-    Y = @(theta2i, theta4, theta5) l3ii + l4 * cos(theta4) + l2i * sin(theta2i) + l5 * cos(theta4) * cos(theta5);
+    X = @(theta2i, theta5) l1i - l3i + l2i * cos(theta2i) - l5 * sin(theta5);
     Z = @(theta2i, theta4, theta5) -l4 * sin(theta4) - l5 * cos(theta5) * sin(theta4);
 
     % Intervalli degli angoli di giunto
-    nsamples = 30;
-    theta2samples = [zeros(1,nsamples), linspace(0, pi/2, nsamples), ones(1,nsamples)*pi/2];
-    theta4samples = [linspace(pi/2, 3/2*pi, 30), ones(1,nsamples)*3/2*pi, linspace(-pi/2, pi/2, 30)];
+    theta2samples = linspace(0, pi, 30);
+    theta4samples = linspace(0, 2 * pi, 30);
+    theta5samples = linspace(0, 2 * pi, 30);
 
     % Preparazione della figura
     figure(fig)
@@ -42,20 +42,24 @@ function plotareayz2(L, fig)
     xlabel("Y")
     ylabel("Z")
     axis equal
+
     % Inizializzazione array di punti
+    x = [];
     z = [];
-    y = [];
+
     % Creazione dell'area di lavoro
-    for idx = 1:1:nsamples*3
-        theta2i = theta2samples(idx);
-        theta4 = theta4samples(idx);
-        % Calcolo delle coordinate del punto finale
-        y = [y Y(theta2i, theta4, 0)];
-        z = [z Z(theta2i, theta4, 0)];
+    for theta2i = theta2samples
+        for theta4 = theta4samples
+            for theta5 = theta5samples
+                % Calcolo delle coordinate del punto finale
+                x = [x X(theta2i, theta5)];
+                z = [z Z(theta2i, theta4, theta5)];
+            end
+        end
     end
-    plot([y, y(1)], [z, z(1)], 'g-',LineWidth=2)
-    plotmanipulatoryz([pi/2, 0, 0], L, 'k', fig)
-    legend ('Workspace','Links','','','Joints','CW')
+
+    plot(x, z, 'b-',LineWidth=2)
+
     hold off
 end
 

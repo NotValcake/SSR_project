@@ -1,5 +1,5 @@
-function [x5, y5, z5] = plotmanipulatorxy(Q,L,colore,fig)
-% PLOTMANIPULATORXY Questa funzione plotta il manipolatore assegnato, date le
+function [x5, y5, z5] = plotmanipulatorxz(Q,L,colore,fig)
+% PLOTMANIPULATORXZ Questa funzione plotta il manipolatore assegnato, date le
 % posizioni degli attuatori Q e le dimensioni dei link L
 %
 % Parametri di input:
@@ -20,10 +20,10 @@ function [x5, y5, z5] = plotmanipulatorxy(Q,L,colore,fig)
 %
 % Outputs:
 %   x5   - coordinata x del gripper
-%   y5   - coordinata y del gripper
+%   z5   - coordinata z del gripper
 %
 % Descrizione:
-% 1. La funzione calcola le coordinate (x, y) di ciascun giunto del
+% 1. La funzione calcola le coordinate (x, z) di ciascun giunto del
 %    manipolatore robotico in base agli angoli e alle lunghezze specificate.
 % 2. Vengono definiti gli angoli relativi per i vari giunti e i punti 
 %    intermedi in modo da rispettare la configurazione geometrica del
@@ -59,43 +59,36 @@ theta4   = Q(2);
 theta5   = Q(3);
 
 x0 = 0;
-y0 = 0;
-
-
 x1i = x0 + l1i;
-y1i = y0;
-
 x1ii = l1ii*cos(theta1ii);
-y1ii = l1ii*sin(theta1ii);
-
 x2i = x1i + l2i*cos(theta2i);
-y2i = y1i + l2i*sin(theta2i);
-
 x3 = x1ii + l3i;
-y3 = y1ii + l3ii;
-
 x3i = (x2i + x1ii)/2;
-y3i = (y2i + y1ii)/2;
-
 x4 = x3;
-y4 = y3 + l4*cos(theta4);
-
 x5 = x4 - l5*sin(theta5);
-y5 = y4 + l5*cos(theta4)*cos(theta5);
+
+z0 = 0;
+z1i = z0;
+z1ii = z0;
+z2i = z1i;
+z3 = z1ii;
+z3i = (z2i + z1ii)/2;
+z4 = z3 - l4*sin(theta4);
+z5 = z4 - l5*sin(theta4)*cos(theta5);
 
 hold on
 
 % manipulator
-plot([x1i x2i x3i x3 x4 x5], [y1i y2i y3i y3 y4 y5], 'LineWidth', 2,'color',colore);
-plot([x0 x1ii x3i], [y0 y1ii y3i], 'LineWidth', 2,'color', colore);
+plot([x1i x2i x3i x3 x4 x5], [z1i z2i z3i z3 z4 z5], 'LineWidth', 2,'color',colore);
+plot([x0 x1ii x3i], [z0 z1ii z3i], 'LineWidth', 2,'color', colore);
 % base
-plot([x0 x1i], [y0 y1i], '*-','color','k', 'LineWidth', 2, 'MarkerSize', 5);
+plot([x0 x1i], [z0 z1i], '*-','color','k', 'LineWidth', 2, 'MarkerSize', 5);
 % joints
-plot([x0 x1i x1ii x2i x3 x4 x5], [y0 y1i y1ii y2i y3 y4 y5], 'o','color', colore, 'MarkerSize', 5, 'MarkerFaceColor', colore);
+plot([x0 x1i x1ii x2i x3 x4 x5], [z0 z1i z1ii z2i z3 z4 z5], 'o','color', colore, 'MarkerSize', 5, 'MarkerFaceColor', colore);
 % end effector
-plot( x5, y5,'diamond','color', colore, 'MarkerSize', 10, 'MarkerFaceColor', colore);
+plot(x5, z5, 'diamond','color', colore, 'MarkerSize', 10, 'MarkerFaceColor', colore);
 % axis equal
 xlabel x
-ylabel y
+ylabel z
 axis equal
 grid on
