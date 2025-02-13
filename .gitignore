@@ -1,1 +1,8 @@
+# Ignore specific MATLAB files
+l3static_symb.m
+provaSCARA.m
+provaTreTratti.m
+symbolic_dirkin.m
+symbolic_invkin.m
+
 *.asv

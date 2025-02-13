@@ -1,4 +1,4 @@
-function [phi] = invdyn(Mabs, Habs, Labs, I, m, G, Phie)
+function [Phistar, phi] = invdyn(Mabs, Habs, Labs, I, m, G, Phie)
     % Funzione per la dinamica inversa di un robot a catena cinematica
     % aperta
     %
@@ -13,7 +13,8 @@ function [phi] = invdyn(Mabs, Habs, Labs, I, m, G, Phie)
     % Phie - Forze esterne applicate sul gripper
     %
     % OUTPUT:
-    % phi - Forze e momenti per ogni giunto
+    % Phistar - Forze e momenti per ogni giunto
+    % phi - Coppia esercitata da ogni giunto
 
     % Inizializzazione
     numLinks = size(I, 3);
@@ -24,15 +25,17 @@ function [phi] = invdyn(Mabs, Habs, Labs, I, m, G, Phie)
           0, 0, 0, 0];
     
     % Forze esterne applicate al gripper
-    Phistar(:,:,numLinks) = Phie;
-    phi(:,:,numLinks) = zeros(4,4);
+    Phistar(:,:,numLinks+1) = Phie;
+    phi = zeros(1,numLinks);
 
     % Ricorsione inversa per calcolare le azioni sui giunti
-    for j = numLinks-1:-1:1  % Iteriamo dal penultimo link verso il primo
+    for j = numLinks:-1:1  % Iteriamo dal penultimo link verso il primo
+        
         % Calcolo degli pseudo-tensori di inerzia per ciascun link
         pseudoJ = pseudoinertia(I(:,:,j), m(j), G(:,:,j));
         
-        % Trasformazione degli pseudo-tensori di inerzia al sistema di riferimento assoluto
+        % Trasformazione degli pseudo-tensori di inerzia dal sistema di 
+        % riferimento locale al sistema di riferimento assoluto
         pseudoJ = Mabs(:,:,j) * pseudoJ * Mabs(:,:,j)';
         
         % Calcolo delle forze di inerzia e del peso del link
@@ -42,6 +45,6 @@ function [phi] = invdyn(Mabs, Habs, Labs, I, m, G, Phie)
         Phistar(:,:,j) = Phi(:,:,j) + Phistar(:,:,j+1);
         
         % Calcolo della forza risultante sul giunto j (con funzione pseudot)
-        phi(:,:,j) = pseudot(-Phistar(:,:,j), Labs(:,:,j));
+        phi(j) = pseudot(-Phistar(:,:,j), Labs(:,:,j));
     end
 end

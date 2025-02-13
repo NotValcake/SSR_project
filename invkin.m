@@ -47,9 +47,9 @@ F = @(Q)[
     ];
 
 % Stima iniziale per Q basata sulla posizione desiderata P
-theta2i = atan2(P(2), P(1))/2;   % Primo giunto: angolo della proiezione di P su x-y
-theta4 = atan2(P(3), P(1));      % Secondo giunto:  angolo della proiezione di P su z-y
-theta5 = atan2(P(2), P(1))/2;    % Terzo giunto: angolo della proiezione di P su x-y
+% theta2i = atan2(P(2), P(1))/2;   % Primo giunto: angolo della proiezione di P su x-y
+% theta4 = atan2(P(3), P(1));      % Secondo giunto:  angolo della proiezione di P su z-y
+% theta5 = atan2(P(2), P(1))/2;    % Terzo giunto: angolo della proiezione di P su x-y
 Q0 = [0, 0, 0]'; % Inizializzazione degli angoli di partenza
 
 % Risoluzione del sistema non lineare per Q usando Newton-Raphson

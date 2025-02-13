@@ -34,12 +34,14 @@ function [Qi, i] = newtonraphson(F, J, Q0, S, tol, imax)
         JQi = J(Qi);
 
         % Verifica se il Jacobiano è invertibile
-        if abs(det(JQi)) < 1e-12
-            error('Il Jacobiano è prossimo alla singolarità alla iterazione %d. Impossibile continuare.', i);
-        end
+        % if abs(det(JQi)) < 1e-12
+        %     error('Il Jacobiano è prossimo alla singolarità alla iterazione %d. Impossibile continuare.', i);
+        % end
 
         % Calcola Qi+1 e Si+1
-        Qi = Qi + JQi\ (S - Si);
+        % Qi = Qi + JQi\ (S - Si);
+        % Utilizzo della pseudoinversa
+        Qi = Qi + pinv(JQi)*(S - Si);
         Si = F(Qi);
 
         % Test di convergenza
