@@ -1,4 +1,4 @@
-function [x5, y5, z5] = plotmanipulator(Q,L,colore,fig)
+function [x5, y5, z5] = plotmanipulator2(Q,L,colore,fig)
 % PLOTMANIPULATOR Questa funzione plotta il manipolatore assegnato, date le
 % posizioni degli attuatori Q e le dimensioni dei link L
 %

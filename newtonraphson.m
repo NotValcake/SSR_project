@@ -1,59 +1,54 @@
 function [Qi, i] = newtonraphson(F, J, Q0, S, tol, imax)
-    % NEWTONRAPHSON Calcola uno zero di un sistema di equazioni non lineari
-    % utilizzando l'algoritmo di Newton-Raphson.
+    % NEWTONRAPHSON Finds a zero of a nonlinear system using the Newton-Raphson method.
     %
-    % Sintassi:
+    % Syntax:
     %   [Qi, i] = newtonraphson(F, J, Q0, S, tol, imax)
     %
-    % Input:
-    %   F       - Funzione anonima che rappresenta il sistema di equazioni
-    %             non lineari. Deve restituire un vettore di dimensione (n,1).
+    % Inputs:
+    %   F    - Anonymous function representing the nonlinear system.
+    %          Must return an (n×1) vector.
+    %   J    - Anonymous function representing the Jacobian matrix.
+    %   Q0   - Initial guess (n×1 vector).
+    %   S    - Target vector for convergence testing.
+    %   tol  - Convergence tolerance.
+    %   imax - Maximum number of iterations.
     %
-    %   J       - Funzione anonima che rappresenta il Jacobiano del sistema.
+    % Outputs:
+    %   Qi   - Approximate solution vector where F(Qi) is close to S.
+    %   i    - Number of iterations required to find the solution.
     %
-    %   Q0      - Vettore iniziale (approssimazione iniziale) per l'algoritmo.
-    %
-    %   S       - Vettore obiettivo per il test di convergenza.
-    %
-    %   tol     - Tolleranza per il criterio di convergenza.
-    %
-    %   imax    - Numero massimo di iterazioni.
-    %
-    % Output:
-    %   Qi      - Vettore soluzione approssimata che rende F(Qi) vicino a S.
-    %   i       - Numero di iterazioni usate per trovare la soluzione.
+    % Note:
+    %   The use of pinv (pseudoinverse) instead of the standard inverse
+    %   helps to eliminate the problem of singularity in the Jacobian matrix.
+    %   This ensures the method can proceed even when J is near-singular.
     
-    % Inizializzazione
+    % Initialization
     Qi = Q0;
     Si = F(Qi);
     i = 0;
 
-    % Iterazione di Newton-Raphson
+    % Newton-Raphson iteration
     while i < imax
-        % Calcola l'aggiornamento di Qi usando il Jacobiano
-        JQi = J(Qi);
+        JQi = J(Qi);  % Compute Jacobian at Qi
 
-        % Verifica se il Jacobiano è invertibile
+        % Check if the Jacobian is singular (or near-singular)
         % if abs(det(JQi)) < 1e-12
-        %     error('Il Jacobiano è prossimo alla singolarità alla iterazione %d. Impossibile continuare.', i);
+        %     error('Jacobian near singularity at iteration %d. Unable to proceed.', i);
         % end
 
-        % Calcola Qi+1 e Si+1
-        % Qi = Qi + JQi\ (S - Si);
-        % Utilizzo della pseudoinversa
-        Qi = Qi + pinv(JQi)*(S - Si);
+        % Update Qi using the pseudoinverse to handle singular cases
+        Qi = Qi + pinv(JQi) * (S - Si);
         Si = F(Qi);
 
-        % Test di convergenza
+        % Convergence test
         if norm(S - Si, inf) < tol
-            fprintf('Soluzione trovata in %d iterazioni.\n', i);
+            fprintf('Solution found in %d iterations.\n', i + 1);
             return;
         end
 
-        % Incrementa il contatore di iterazioni
-        i = i + 1;
+        i = i + 1;  % Increment iteration count
     end
 
-    % Avviso se il numero massimo di iterazioni è raggiunto senza convergenza
-    warning('Numero massimo di iterazioni raggiunto senza trovare la soluzione.');
+    % If max iterations are reached without convergence
+    warning('Max iterations reached without finding a solution.');
 end

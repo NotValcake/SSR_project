@@ -53,23 +53,52 @@
   % initialization of inertia matrix
   I (:,:,1) = zeros(3,3);
   G (:,:,1) = zeros(1,3);
+  J (:,:,1) = zeros(4,4);
 
   for i = 1:1:length(L)
       % calculate inertia moments with respect to the center of gravity
-      a = L(i)/2;
-      b = L(i)/2;
-      m1 = m(i)/6;
-      m2 = m(i)/6;
-      mg = 2/3*m(i);
-      Jg = 1/12*m(i)*(a+b)^2;
+      if i==3 % link 3 is a special case
 
-      I(:,:,i) = [0 0 0; 0 Jg 0; 0 0 Jg];
-      G(:,:,i) = [-b 0 0];
+          % link l3'
+          a = L(1)/2;
+          b = L(1)/2;
+          Jg = 1/12*m(1)*(a+b)^2;
+          I3ig = [Jg 0 0; 0 0 0; 0 0 Jg];
+          M33i = [1 0 0 -L(3)
+                  0 1 0 0
+                  0 0 1 0
+                  0 0 0 1];
+          J3ig = pseudoinertia(I3ig, m(1), [0 0 0]);
+
+
+          % link l3''
+          a = L(3)/2;
+          b = L(3)/2;
+          Jg = 1/12*m(3)*(a+b)^2;
+          I3iig = [0 0 0; 0 Jg 0; 0 0 Jg];
+          M33ii = [1 0 0 -L(3)/2
+                  0 1 0 0
+                  0 0 1 0
+                  0 0 0 1];
+          J3iig = pseudoinertia(I3iig, m(3), [0 0 0]);
+          J(:,:,3) = J3ig + J3iig;
+      else
+          a = L(i)/2;
+          b = L(i)/2;
+          m1 = m(i)/6;
+          m2 = m(i)/6;
+          mg = 2/3*m(i);
+          Jg = 1/12*m(i)*(a+b)^2;
+
+          I(:,:,i) = [0 0 0; 0 Jg 0; 0 0 Jg];
+          G(:,:,i) = [-b 0 0];
+          J(:,:,i) = pseudoinertia(I,m(i),G(:,:,i));
+      end
   end
 
   Phie5 = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0];
   Phie0 = M(:,:,6)*Phie5*M(:,:,6)';
-  [Phi, phi] = invdyn(Mi,Habs,Labs,I,m,G,Phie0);
+  [Phi, phi] = invdyn(Mi,Habs,Labs,J,m,G,Phie0,L);
 
   Hg = [0, 0, 0, -9.81;  % Forza gravitazionale applicata
           0, 0, 0, 0;
@@ -77,12 +106,12 @@
           0, 0, 0, 0];
 
   % Calcolo potenza
-  Ec = 0;
-  Ep = 0;
-  for i = 1:1:length(L)
-      Ec = Ec + 1/2*trace(Wabsi(:,:,i)*pseudoinertia(I(:,:,i),m(i),G(:,:,i))*Wabsi(:,:,i)');
-      Ep = Ep + trace(-Hg*pseudoinertia(I(:,:,i),m(i),G(:,:,i)));
-  end
-
-  power1 = diff(Ec+Ep);
-  power2 = [Phi(1), Phi(3), Phi(4)]*Qdd';
+  % Ec = 0;
+  % Ep = 0;
+  % for i = 1:1:length(L)
+  %     Ec = Ec + 1/2*trace(Wabsi(:,:,i)*pseudoinertia(I(:,:,i),m(i),G(:,:,i))*Wabsi(:,:,i)');
+  %     Ep = Ep + trace(-Hg*pseudoinertia(I(:,:,i),m(i),G(:,:,i)));
+  % end
+  % 
+  % power1 = diff(Ec+Ep);
+  % power2 = [Phi(1), Phi(3), Phi(4)]*Qdd';
