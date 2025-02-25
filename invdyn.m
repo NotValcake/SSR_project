@@ -35,7 +35,8 @@ function [Phistar, phi] = invdyn(Mabs, Habs, Labs, J, Phie, L)
         
         % Transform the pseudo-inertia tensors from the local frame to 
         % the absolute reference frame
-        pseudoJ = Mabs(:,:,j) * J(:,:,j) * Mabs(:,:,j)';
+        % pseudoJ = Mabs(:,:,j) * J(:,:,j) * Mabs(:,:,j)';
+        pseudoJ = J(:,:,j);
         
         % Compute inertial forces and the weight of the link
         Phi(:,:,j) = -((Habs(:,:,j) - Hg) * pseudoJ - ((Habs(:,:,j) - Hg) * pseudoJ)');
@@ -57,8 +58,8 @@ function [Phistar, phi] = invdyn(Mabs, Habs, Labs, J, Phie, L)
     fg = -9.81;
     
     % Link l3
-    pseudoJ = Mabs(:,:,4) * J(3) * Mabs(:,:,4)';
-    Fi3(:,:) = -(Habs(:,:,4)*pseudoJ*Habs(:,:,4));
+    % pseudoJ = Mabs(:,:,4) * J(3) * Mabs(:,:,4)';
+    Fi3(:,:) = -(Habs(:,:,4)*J(:,:,3)-J(:,:,3)*Habs(:,:,4));
     fix = Fi3(1,4);
     fiy = Fi3(2,4);
     ciz = Fi3(2,1);
@@ -76,6 +77,13 @@ function [Phistar, phi] = invdyn(Mabs, Habs, Labs, J, Phie, L)
     f2z = -f4z;
     c2x = - c4x - f4z*l3d;
     c2y = - c4y - (f4z*l3)/2;
+    c2z = 0; % c1z is not constrained by joints
+
+    Phistar(:,:,2) = [
+         0   -c2z  c2y f2x;
+         c2z  0   -c2x f2y;
+        -c2y  c2x  0   f2z;
+        -f2x -f2y -f2z 0];
 
     % Not needed
     % f1x = 0;
@@ -99,6 +107,8 @@ function [Phistar, phi] = invdyn(Mabs, Habs, Labs, J, Phie, L)
 
     % Compute motor torques
     phi(1) = pseudot(-Phistar(:,:,1), Labs(:,:,2));
+    phi(2) = pseudot(-Phistar(:,:,2), Labs(:,:,3));
+    
     phi = [phi(1), phi(3), phi(4)];
 
 end

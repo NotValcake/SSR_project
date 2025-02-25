@@ -50,7 +50,9 @@ F = @(Q)[
 Q0 = [0, 0, 0]'; % Initial joint angle guess
 
 % Solve the nonlinear system for Q using Newton-Raphson method
-Q = newtonraphson(F, J, Q0, P, 1e-15, 1e3);
+Q = newtonraphson(F, J, Q0, P, 1e-6, 1e4);
+
+Q = mod(Q,2*pi);
 
 % Compute joint velocity Qd
 Qd = J(Q) \ Pd;

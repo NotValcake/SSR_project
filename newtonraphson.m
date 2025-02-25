@@ -42,7 +42,7 @@ function [Qi, i] = newtonraphson(F, J, Q0, S, tol, imax)
 
         % Convergence test
         if norm(S - Si, inf) < tol
-            fprintf('Solution found in %d iterations.\n', i + 1);
+            % fprintf('Solution found in %d iterations.\n', i + 1);
             return;
         end
 

@@ -11,6 +11,6 @@ function [x,xp,xpp]=cycloidal(t,T,S0,dS)
 %
 x = dS*(t/T-1/(2*pi)*sin(2*pi*t/T))+S0;
 xp = dS/T*(1-cos(2*pi*t/T));
-xpp=dS/(T^2)*2*pi*sin(2*pi*t/T);
+xpp= dS/(T^2)*2*pi*sin(2*pi*t/T);
 
 end

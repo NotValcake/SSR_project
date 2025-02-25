@@ -4,5 +4,6 @@ provaSCARA.m
 provaTreTratti.m
 symbolic_dirkin.m
 symbolic_invkin.m
+lagrange.m
 
 *.asv
