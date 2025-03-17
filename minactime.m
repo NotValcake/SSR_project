@@ -48,12 +48,12 @@ if lom == "ts"
     else
         % --- Triangular profile (no cruise) ---
         % Compute the peak velocity v_peak that can be reached:
-        t1 = sqrt(dmax/amax * 2*ds/(amax+dmax));
-        t3 = sqrt(amax/dmax * 2*ds/(amax+dmax));
+        t1 = sqrt(dmax/amax * 2*abs(ds)/(amax+dmax));
+        t3 = sqrt(amax/dmax * 2*abs(ds)/(amax+dmax));
         T = t1 + t3;
     end
 elseif lom == "c" % if cycloidal law of motion
-    T = max([2*ds/vmax, sqrt(2*pi*ds/amax), sqrt(2*pi*ds/dmax)]);
+    T = max([2*ds/vmax, sqrt(2*pi*abs(ds)/amax), sqrt(2*pi*abs(ds) /dmax)]);
     t1 = -1;
     t3 = -1;
 end

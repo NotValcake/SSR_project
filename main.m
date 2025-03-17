@@ -182,3 +182,33 @@ plot(tt, p)
 grid on
 title('Power')
 legend('d(T+U)/dt', 'W')
+
+figure(8)
+hold on
+plot(tt, Q(1,:), "-", LineWidth=1.5)
+plot(tt, Qd(1,:), "-", LineWidth=1.5)
+plot(tt, Qdd(1,:), "-", LineWidth=1.5)
+% plot([0 T],[0 0], 'k')
+grid on
+title('x Linear')
+legend('x','xd','xdd')
+
+figure(9)
+hold on
+plot(tt, Q(2,:), "-", LineWidth=1.5)
+plot(tt, Qd(2,:), "-", LineWidth=1.5)
+plot(tt, Qdd(2,:), "-", LineWidth=1.5)
+% plot([0 T],[0 0], 'k')
+grid on
+title('Y Linear')
+legend('y','yd','ydd')
+
+figure(10)
+hold on
+plot(tt, Q(3,:), "-", LineWidth=1.5)
+plot(tt, Qd(3,:), "-", LineWidth=1.5)
+plot(tt, Qdd(3,:), "-", LineWidth=1.5)
+% plot([0 T],[0 0], 'k')
+grid on
+title('Z Linear')
+legend('z','zd','zdd')
