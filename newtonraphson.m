@@ -50,5 +50,5 @@ function [Qi, i] = newtonraphson(F, J, Q0, S, tol, imax)
     end
 
     % If max iterations are reached without convergence
-    warning('Max iterations reached without finding a solution.');
+    % warning('Max iterations reached without finding a solution for point [' + join(string(S), ",") + '].');
 end

@@ -50,9 +50,44 @@ F = @(Q)[
 Q0 = [0, 0, 0]'; % Initial joint angle guess
 
 % Solve the nonlinear system for Q using Newton-Raphson method
-Q = newtonraphson(F, J, Q0, P, 1e-6, 1e4);
+valid = false;
+tol = 1e-4;
+maxiter = 1e4;
+maxatt = 1e3;
+attempt = 0;
+while ~valid && attempt < maxatt
+    [Q, i] = newtonraphson(F, J, Q0, P, tol, maxiter);
 
-Q = mod(Q,2*pi);
+    % Map joint angles between (0, 2pi)
+    Q = mod(Q,2*pi);
+    
+     % Map joint angles between (-pi, pi)
+    if Q(2) > pi
+        Q(2) = -(2*pi-Q(2));
+    end
+    
+     % Map joint angles between (-pi, pi)
+    if Q(3) > pi
+        Q(3) = -(2*pi-Q(3));
+    end
+
+    % Enforce respect of joint limits
+    if Q(1) < pi-deg2rad(1) && Q(1) > deg2rad(1) && ...
+            Q(2) < pi && Q(2) > -pi && ...
+            Q(3) < pi && Q(3) > -pi && ...
+            i < maxiter
+
+        valid = true;
+    else
+        % Randomly update the starting point
+        Q0 = rand(size(Q0))*pi;
+        attempt = attempt + 1;
+    end
+end
+
+if attempt >= maxatt
+    warning('Max attempts reached without finding a solution for point [' + join(string(P), ",") + '].');
+end
 
 % Compute joint velocity Qd
 Qd = J(Q) \ Pd;
