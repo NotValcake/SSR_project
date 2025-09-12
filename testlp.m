@@ -13,7 +13,7 @@ theta = [letterX; letterY; letterZ];
 A = [.1, 0.2, 0.05]';
 V = [.5, .7, .6]';
 numpoints = 50;
-[q, qd, qdd, tt, T, t] = lineparabolas2(theta, A, V);
+[q, qd, qdd, tt, T, t] = lineparabolas(theta, A, V);
 
 d = height(theta);
 

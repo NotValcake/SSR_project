@@ -26,9 +26,9 @@ function [t1, t3, T] = minactime(ds, amax, dmax, vmax, lom)
 %   Example:
 %       [t1, t3, T] = minactime(10, 2, 2, 3);
 
-if ~exist('lom','var')
-    lom = "ts"; % default to a three steps law of motion
-end
+% if ~exist('lom','var')
+%     lom = "ts"; % default to a three steps law of motion
+% end
 
 if lom == "ts"
     % Candidate times if vmax is reached

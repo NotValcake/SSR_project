@@ -3,7 +3,7 @@
   % L = [0.5, 0.3, 0.4, 0.2, 0.1];
 
   % Define the lengths of each link
-  L = [1, 1, 1, 1, 1];
+  L = [1, 1.1, 1, 1, 0.9];
 
   % Define the joint configurations (angles in radians, velocities, and accelerations)
   Q = [deg2rad(45), deg2rad(60), deg2rad(125)];
@@ -26,14 +26,20 @@
   
   % Workspace plot
   plotareaxy2(L,2)
+  xlabel("X [m]")
+  ylabel("Y [m]")
   % saveas(gcf, "../Img/areaxy.jpg")
   plotareaxz2(L,6)
+  xlabel("X [m]")
+  ylabel("Z [m]")
   % saveas(gcf, "../Img/areaxz.jpg")
   plotareayz2(L,4)
+  xlabel("Y [m]")
+  ylabel("Z [m]")
   % saveas(gcf, "../Img/areayz.jpg")
 
   % Test inverse kinematic
-  [Qi, Qdi, Qddi] = invkin(L,P(1:3,end),Pd(1:3,end),Pdd(1:3,end));
+  [Qi, Qdi, Qddi] = invkin(L,P(1:3,end),Pd(1:3,end),Pdd(1:3,end),[0,0,0]);
   Qi = mod(Qi,2*pi);
   [Mi, Wabsi, Habsi, Labsi] = dirkin(L, Qi, Qdi, Qddi);
 
@@ -120,8 +126,6 @@
   % Bodies variable are arranged [l2', l1', l1'', l3, l4, l5]
   W = cat(3, Wabs(:,:,3), Wabs(:,:,7), Wabs(:,:,4), Wabs(:,:,5), Wabs(:,:,6));
   Jabs = cat(3, J(:,:,2), J1ii, J(:,:,3), J(:,:,4), J(:,:,5));
-
-  Qm = lagrange(W, Jabs, L, Qdd, Hg); 
 
   % Calcolo potenza
   % Ec = 0;

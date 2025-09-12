@@ -38,7 +38,7 @@ for idx = 1:6
     xlim([-2 3])
     ylim([0 4])
     zlim([-3 3])
-    legend('Links','','Base link','Joints','End-effector', '')
+    % legend('Links','','Base link','Joints','End-effector', '')
 
     % limits to be used with plotmanipulator results
     % xlim([-2 3])

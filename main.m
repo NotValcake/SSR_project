@@ -1,7 +1,9 @@
 clear; close all; clc;
 
 % Define the lengths of each link
-L = [1, 1, 1, 1, 1];
+L = [1, 1.1, 1, 1, .9];
+
+numlinks = 5;
 
 % Mass of each link
 m = [1 1 1 1 1];
@@ -20,15 +22,15 @@ Hg = [0, 0, 0, -9.81;  % Gravitational acceleration matrix
 % Start configuration to goal configuration Si → Sf
 P1 = [0.5 4 0];
 
-letterX = [-1.0000   -0.5000         0    0.5000    1.0000    1.5000...
-            1.8000    2.0000    1.8000    1.5000    1.0000    0.7500...
-            0.5000    0.2000         0    0.2000    0.5000    1.0000...
-            1.5000    1.8000    1.9000    1.8000    1.5000];
+letterX = [-0.8000   -0.5000         0    0.5000    1.0000    1.5000...
+            1.7000    1.9000    1.7000    1.5000    1.0000    ...
+            0.5000    0.3000    0.1000    0.3000    0.5000    1.0000...
+            1.5000    1.7000    1.8000    1.7000    1.5000];
 
-letterY = [3.0000    3.0000    3.0000    3.0000    3.0000    3.0000...
-           2.8000    2.5000    2.2000    2.0000    1.9000    1.9500...
-           2.0000    2.2000    2.5000    2.8000    3.0000    3.0000...
-           3.0000    3.1000    3.2000    3.4000    3.5000];
+letterY = [3.2000    3.2000    3.2000    3.2000    3.2000    3.2000...
+           3.0000    2.7000    2.4000    2.2000    2.1000    2.2000...
+           2.4000    2.7000    3.0000    3.2000    3.2000    3.2000...
+           3.2500    3.4000    3.5500    3.6000];
 
 % Place the trajectory on an inclined plane
 a = -.3; b = .2; d=0; 
@@ -46,8 +48,9 @@ d = height(Amax);
 theta = zeros(d, length(coords));
 
 tic
-parfor j = 1:length(coords)
-    [theta(:,j), ~, ~] = invkin(L,coords(:,j),zeros(3,1),zeros(3,1));
+[theta(:,1), ~, ~] = invkin(L,coords(:,1),zeros(3,1),zeros(3,1),[0,0,0]');
+for j = 2:length(coords)
+    [theta(:,j), ~, ~] = invkin(L,coords(:,j),zeros(3,1),zeros(3,1),theta(:,j-1));
 end
 toc
 %% ------------------------ THREE STEP SEGMENT ------------------------ %%
@@ -91,20 +94,23 @@ for i=1:d
     grid on
     title('Actuator ' + string(i))
     legend('Q','Qd','Qdd')
+    xlabel("t [s]")
+    ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
 end
 
 %% ---------------------- LINE PARABOLAS SEGMENT ---------------------- %%
 
 % Compute the trajectory through the d shape in the joint space
-[q_lp, qd_lp, qdd_lp, tt_lp, T_lp, t_lp] = lineparabolas2(theta(:,2:end-1), Amax, Vmax, dT);
+% [q_lp, qd_lp, qdd_lp, tt_lp, T_lp, t_lp] = lineparabolas(theta(:,2:end-1), Amax, Vmax, dT);
 
 % Compute the trajectory through the d shape in the work space
-% [x_lp, xd_lp, xdd_lp, tt_lp, T_lp, t_lp] = lineparabolas2(coords(:,2:end-1), Amax, Vmax, dT);
-% tic
-% for j=1:length(xd_lp)
-%     [q_lp(:,j), qd_lp(:,j), qdd_lp(:,j)] = invkin(L,x_lp(:,j),xd_lp(:,j),xdd_lp(:,j));
-% end
-% toc
+[x_lp, xd_lp, xdd_lp, tt_lp, T_lp, t_lp] = lineparabolas(coords(:,2:end-1), Amax, Vmax, dT);
+tic
+[q_lp(:,1), qd_lp(:,1), qdd_lp(:,1)] = invkin(L,x_lp(:,1),xd_lp(:,1),xdd_lp(:,1),[0,0,0]');
+for j=2:length(xd_lp)
+    [q_lp(:,j), qd_lp(:,j), qdd_lp(:,j)] = invkin(L,x_lp(:,j),xd_lp(:,j),xdd_lp(:,j),q_lp(:,j-1));
+end
+toc
 
 % Plot the lineparabolas trajectory
 for j = 1:d
@@ -113,7 +119,9 @@ for j = 1:d
     hold on
     title('Position ' + string(j))
     plot(tt_lp, q_lp(j,:), '-', Color = "#0072BD", LineWidth=1)
-    plot(T_lp, theta(j,2:end-1), 'k.')
+    plot(T_lp, theta(j,2:end-1), 'k.--')
+    xlabel("t [s]")
+    ylabel("Q [rad]")
     for i = 1:length(T_lp)
         if i == 1
             plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
@@ -124,7 +132,7 @@ for j = 1:d
             plot([T_lp(i)-t_lp(i)/2, T_lp(i)+ -(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
         end
     end
-    ylim([min(q_lp(j,:)), max(q_lp(j,:))])
+    ylim([min(theta(j,2:end-1)), max(theta(j,2:end-1))])
 
     grid on
     legend('Q', 'theta')
@@ -137,6 +145,8 @@ for j = 1:d
     plot([tt_lp(1), tt_lp(end)], -[Vmax(j), Vmax(j)], 'r--')
     grid on
     legend('Qd', 'Qd_{max}', 'Qd_{min}')
+    xlabel("t [s]")
+    ylabel("Qd [rad/s]")
     for i = 1:length(T_lp)
         if i == 1
             plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
@@ -157,6 +167,8 @@ for j = 1:d
     plot([tt_lp(1), tt_lp(end)], -[Amax(j), Amax(j)], 'r--')
     grid on
     legend('Qdd', 'Qdd_{max}', 'Qdd_{min}')
+    xlabel("t [s]")
+    ylabel("Qdd [rad/s^2]")
     for i = 1:length(T_lp)
         if i == 1
             plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
@@ -173,9 +185,9 @@ end
 %% ------------------------ CYCLOIDAL SEGMENT ------------------------ %%
 
 % Calculate minimum actuation time for each motor
-[t1(1), t3(1), T_c(1)] = minactime(theta(1,end)-theta(1,end-1),Amax(1),Amax(1),Vmax(1),"c");
-[t1(2), t3(2), T_c(2)] = minactime(theta(2,end)-theta(2,end-1),Amax(2),Amax(2),Vmax(2),"c");  
-[t1(3), t3(3), T_c(3)] = minactime(theta(3,end)-theta(3,end-1),Amax(3),Amax(3),Vmax(3),"c");
+[t1(1), t3(1), T_c(1)] = minactime(theta(1,end)-q_lp(1,end),Amax(1),Amax(1),Vmax(1),"c");
+[t1(2), t3(2), T_c(2)] = minactime(theta(2,end)-q_lp(1,end),Amax(2),Amax(2),Vmax(2),"c");  
+[t1(3), t3(3), T_c(3)] = minactime(theta(3,end)-q_lp(1,end),Amax(3),Amax(3),Vmax(3),"c");
 ll1 = t1./T;
 ll3 = t3./T;
 tt_c = 0:dT:max(T_c);
@@ -190,7 +202,7 @@ for i=1:length(tt_c)
     for j=1:d
         % Check if the actuation is terminated for each actuator
         if tt_c(i) <= T_c(j)
-            [q_c(j,i), qd_c(j,i), qdd_c(j,i)] = cycloidal(tt_c(i),T_c(j),theta(j,end-1),theta(j,end)-theta(j,end-1));
+            [q_c(j,i), qd_c(j,i), qdd_c(j,i)] = cycloidal(tt_c(i),T_c(j),q_lp(j,end),theta(j,end)-q_lp(j,end));
         else
             q_c(j,i) = q_c(j,i-1);
             qd_c(j,i) = 0;
@@ -209,6 +221,8 @@ for i=1:d
     grid on
     title('Actuator ' + string(i))
     legend('Q','Qd','Qdd')
+    xlabel("t [s]")
+    ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
 end
 
 %% ------------------------ MERGE TRAJECTORIES ------------------------ %%
@@ -233,7 +247,11 @@ for i=1:d
     grid on
     title('Actuator ' + string(i))
     legend('Q','Qd','Qdd')
+    xlabel("t [s]")
+    ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
 end
+
+%% ------------------ KNEMATIC AND DYNAMICS ANALYSIS ------------------ %%
 
 Phie5 = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0];
 
@@ -242,89 +260,131 @@ P = zeros(4,4,length(tt));
 Pd = zeros(4,4,length(tt));
 Pdd = zeros(4,4,length(tt));
 
+% Initialize torques vector
+torques = zeros(length(tt),d);
+
+% Initialize energy and power vectors
+U = zeros(1,length(tt));
+K = zeros(1,length(tt));
+p1 = zeros(1,length(tt));
+p2 = zeros(1,length(tt));
+p3 = zeros(1,length(tt));
+pt = zeros(1,length(tt));
+
 for t=1:length(tt) % generate motion in working space
     
     % Solve forward kinematic
-    [M, W, H, Labs] = dirkin(L, Q(:,t), Qd(:,t), Qdd(:,t));
+    [Mabs, Wabs, Habs, Labs, Wrel, Hrel] = dirkin(L, Q(:,t), Qd(:,t), Qdd(:,t));
 
     % Compute position, velocity and acceleration of end effector
-    P(:,:,t) = M(:,:,6);
-    Pd(:,:,t) = (W(:,:,6)*M(:,:,6));
-    Pdd(:,:,t) = (H(:,:,6)*M(:,:,6));
+    P(:,:,t) = Mabs(:,:,6);
+    Pd(:,:,t) = (Wabs(:,:,6)*Mabs(:,:,6));
+    Pdd(:,:,t) = (Habs(:,:,6)*Mabs(:,:,6));
 
     % Inertia moments calculations
-    % for j = 1:1:length(L)
-    %     % calculate inertia moments with respect to the center of gravity
-    %     if j==3 % link 3 is a special case
-    % 
-    %         % link l3'
-    %         a = L(1)/2;
-    %         b = L(1)/2;
-    %         Jg = 1/12*m(1)*(a+b)^2;
-    %         I3ig = [Jg 0 0; 0 0 0; 0 0 Jg];
-    %         M33i = [1 0 0 -L(3)
-    %             0 1 0 0
-    %             0 0 1 0
-    %             0 0 0 1];
-    %         J3ig = pseudoinertia(I3ig, m(1), [0 0 0]);
-    % 
-    % 
-    %         % link l3''
-    %         a = L(3)/2;
-    %         b = L(3)/2;
-    %         Jg = 1/12*m(3)*(a+b)^2;
-    %         I3iig = [0 0 0; 0 Jg 0; 0 0 Jg];
-    %         M33ii = [1 0 0 -L(3)/2
-    %             0 1 0 0
-    %             0 0 1 0
-    %             0 0 0 1];
-    %         J3iig = pseudoinertia(I3iig, m(3), [0 0 0]);
-    %         J(:,:,3) = J3ig + J3iig;
-    %         J(:,:,3) = M(:,:,4)*J(:,:,3)*M(:,:,4)';
-    %     else
-    %         a = L(j)/2;
-    %         b = L(j)/2;
-    %         m1 = m(j)/6;
-    %         m2 = m(j)/6;
-    %         mg = 2/3*m(j);
-    %         Jg = 1/12*m(j)*(a+b)^2;
-    % 
-    %         I(:,:,j) = [0 0 0; 0 Jg 0; 0 0 Jg];
-    %         G(:,:,j) = [-b 0 0];
-    %         J(:,:,j) = pseudoinertia(I,m(j),G(:,:,j));
-    %         J(:,:,j) = M(:,:,j+1)*J(:,:,j)*M(:,:,j+1);
-    %         if j==2
-    %             J1ii = M(:,:,7)*J(:,:,j)*M(:,:,7);
-    %         end
-    %     end
-    % end
+    for j = 1:1:length(L)
+        % I(:,:,j)=eye(3);
+        % J(:,:,j)=eye(4);
+        % if j==2
+        %     J(:,:,j) = Mabs(:,:,7)*J(:,:,j)*Mabs(:,:,7)';
+        % else
+        %     J(:,:,j)=Mabs(:,:,j+1)*J(:,:,j)*Mabs(:,:,j+1)';
+        % end
 
-    % Phie0 = M(:,:,6)*Phie5*M(:,:,6)';
-    % [Phi, phi(i,:)] = invdyn(M,H,Labs,J,Phie0,L);
-    % 
-    % % Kinetic and potential energy computation
-    % t(i) = 0;
-    % u (i) = 0;
-    % for l= 1:1:size(J,3)
-    %     if l == 2
-    %         t(i) = t(i) + 1/2*trace(W(:,:,7)*J(:,:,l)*W(:,:,7)');
-    %     elseif l == 1
-    %         t(i) = t(i) + 1/2*trace(W(:,:,l+2)*J(:,:,l)*W(:,:,l+2)');
-    %     else
-    %         t(i) = t(i) + 1/2*trace(W(:,:,l+1)*J(:,:,l)*W(:,:,l+1)');
-    %     end
-    %     u(i) = u(i) -trace(Hg*J(:,:,l));
-    % end
-    % p(i) = pseudot(Phi(:,:,1),W(:,:,3)) + pseudot(Phi(:,:,2),W(:,:,4)) + pseudot(Phi(:,:,4),W(:,:,5)) + pseudot(Phi(:,:,5),W(:,:,6));
+        % calculate inertia moments with respect to the center of gravity
+        if j==3 % link 3 is a special case
+
+            % link l3'
+            a = L(1)/2;
+            b = L(1)/2;
+            Jg = 1/12*m(1)*(a+b)^2;
+            I(:,:,j) = [Jg 0 0; 0 0 0; 0 0 Jg];
+            M33i = [1 0 0 -L(3)
+                0 1 0 0
+                0 0 1 0
+                0 0 0 1];
+            J3ig = pseudoinertia(I(:,:,j), m(1), [0 0 0]);
+
+
+            % link l3''
+            a = L(3)/2;
+            b = L(3)/2;
+            Jg = 1/12*m(3)*(a+b)^2;
+            I3iig = [0 0 0; 0 Jg 0; 0 0 Jg];
+            M33ii = [1 0 0 -L(3)/2
+                0 1 0 0
+                0 0 1 0
+                0 0 0 1];
+            J3iig = pseudoinertia(I3iig, m(3), [0 0 0]);
+            J(:,:,3) = J3ig + J3iig;
+            J(:,:,3) = Mabs(:,:,4)*J(:,:,3)*Mabs(:,:,4)';
+        else
+            a = L(j)/2;
+            b = L(j)/2;
+            m1 = m(j)/6;
+            m2 = m(j)/6;
+            mg = 2/3*m(j);
+            Jg = 1/12*m(j)*(a+b)^2;
+
+            I(:,:,j) = [0 0 0; 0 Jg 0; 0 0 Jg];
+            G(:,:,j) = [-b 0 0];
+            J(:,:,j) = pseudoinertia(I(:,:,j),m(j),G(:,:,j));
+            J(:,:,j) = Mabs(:,:,j+1)*J(:,:,j)*Mabs(:,:,j+1)';
+            if j==2
+                J1ii = Mabs(:,:,7)*J(:,:,j)*Mabs(:,:,7)';
+            end
+        end
+    end
+    
+    % External forces acting on the end effector
+    Phie5 = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0];
+    Phie0 = Mabs(:,:,6)*Phie5*Mabs(:,:,6)';
+    [~, torques(t,:)] = invdyn(Habs,Labs,J,Phie0,Hg,L,Q(:,t),Qd(:,t),Qdd(:,t),5);
+
+    % Kinetic and potential energy computation
+    for l = 1:1:size(J,3)
+        if l == 2
+            K(t) = K(t) + 1/2*trace(Wabs(:,:,7)*J(:,:,l)*Wabs(:,:,7)');
+        else
+            K(t) = K(t) + 1/2*trace(Wabs(:,:,l+1)*J(:,:,l)*Wabs(:,:,l+1)');
+        end
+        U(t) = U(t) - trace(Hg*J(:,:,l));
+    end
+    p1(t) = torques(t,1)*Qd(1,t);
+    p2(t) = torques(t,2)*Qd(2,t);
+    p3(t) = torques(t,3)*Qd(3,t);
+    pt(t) = p1(t) + p2(t) + p3(t);
 end
 
 %% --------------------------- VISUALIZATION --------------------------- %%
 % Plot start and end configuration
 plotmanipulator(Q(:,1), L, 'r', 100);
-for i=2:100:length(tt)
-    plotmanipulator(Q(:,i), L, 'g', 100);
-end
+plotmanipulator(theta(:,2), L, 'k', 100);
+plotmanipulator(theta(:,end-1), L, 'k', 100);
+% for i=2:2000:length(tt)
+%     plotmanipulator2(Q(:,i), L, 'g', 100);
+% end
 plotmanipulator(Q(:,end), L, 'b', 100);
+plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
+plot3(coords(1,:),coords(2,:),  coords(3,:), "*-.")
+
+% plot3([-10,10],[0,0],[0,0],'k')
+% plot3([0,0],[-10,10],[0,0],'k')
+% plot3([0,0],[0,0],[-10,10],'k')
+
+% limits to be used with plotmanipulator2 results
+% xlim([-2 3])
+% ylim([0 4])
+% zlim([-3 3])
+plot3([-2,3],[0,0],[0,0],'k')
+plot3([0,0],[0,4],[0,0],'k')
+plot3([0,0],[0,0],[-3,3],'k')
+axis equal
+
+title("Manipulator in workspace")
+xlabel("X [m]")
+ylabel("Y [m]")
+zlabel("Z [m]")
 
 figure(102)
 hold on
@@ -338,6 +398,8 @@ plot(tt(2:end),diff(reshape(Pd(1,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
 title('X Linear')
 legend('x','xd','xdd','xdn','xddn')
+xlabel("t [s]")
+ylabel("x [m]    xd [m/s]    xdd [m/s^2]")
 
 figure(103)
 hold on
@@ -350,6 +412,8 @@ plot(tt(2:end),diff(reshape(Pd(2,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
 title('Y Linear')
 legend('y','yd','ydd','ydn','yddn')
+xlabel("t [s]")
+ylabel("y [m]    yd [m/s]    ydd [m/s^2]")
 
 figure(104)
 hold on
@@ -362,6 +426,8 @@ plot(tt(2:end),diff(reshape(Pd(3,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
 title('Z Linear')
 legend('z','zd','zdd','zdn','zddn')
+xlabel("t [s]")
+ylabel("z [m]    zd [m/s]    zdd [m/s^2]")
 
 figure(105)
 hold on
@@ -370,61 +436,58 @@ plot3(coords(1,:), coords(2,:), coords(3,:), "*-.")
 % plot([0 T],[0 0], 'k')
 grid on
 title('Working space trajectory')
+xlabel("X [m]")
+ylabel("Y [m]")
+zlabel("Z [m]")
+legend("Robot trajectory", "Objective trajectory")
+view(45,45)
 
-% figure(5)
-% hold on
-% plot(tt, phi(:,1))
-% plot(tt, phi(:,2))
-% plot(tt, phi(:,3))
-% % plot([0 T],[0 0], 'k')
-% grid on
-% title('Motor torques')
-% legend('theta2''','theta4','theta5')
-% 
-% figure(6)
-% hold on
-% plot(tt, t)
-% plot(tt, u)
-% grid on
-% title('Energy')
-% legend('Ek', 'Ep')
-% 
-% de = diff(t+u)/dT;
-% 
-% figure(7)
-% hold on
-% plot(tt(2:end), de)
-% plot(tt, p)
-% grid on
-% title('Power')
-% legend('d(T+U)/dt', 'W')
-% 
-% figure(8)
-% hold on
-% plot(tt, Q(1,:), "-", LineWidth=1.5)
-% plot(tt, Qd(1,:), "-", LineWidth=1.5)
-% plot(tt, Qdd(1,:), "-", LineWidth=1.5)
-% % plot([0 T],[0 0], 'k')
-% grid on
-% title('x Linear')
-% legend('x','xd','xdd')
-% 
-% figure(9)
-% hold on
-% plot(tt, Q(2,:), "-", LineWidth=1.5)
-% plot(tt, Qd(2,:), "-", LineWidth=1.5)
-% plot(tt, Qdd(2,:), "-", LineWidth=1.5)
-% % plot([0 T],[0 0], 'k')
-% grid on
-% title('Y Linear')
-% legend('y','yd','ydd')
-% 
-% figure(10)
-% hold on
-% plot(tt, Q(3,:), "-", LineWidth=1.5)
-% plot(tt, Qd(3,:), "-", LineWidth=1.5)
-% plot(tt, Qdd(3,:), "-", LineWidth=1.5)
-% % plot([0 T],[0 0], 'k')
-% grid on
-% title('Z Linear')
-% legend('z','zd','zdd')
+figure(5)
+hold on
+plot(tt, torques(:,1), LineWidth=1)
+plot(tt, torques(:,2), LineWidth=1)
+plot(tt, torques(:,3), LineWidth=1)
+xlabel("t [s]")
+ylabel("T [Nm]")
+% plot([0 T],[0 0], 'k')
+grid on
+title('Motor torques')
+legend('theta2''','theta4','theta5')
+
+figure(6)
+hold on
+xlabel("t [s]")
+yyaxis left
+ylabel("K [J]")
+plot(tt, K, LineWidth=1)
+yyaxis right
+plot(tt, U, LineWidth=1)
+ylabel("U [J]")
+grid on
+title('Energy')
+legend('Ek', 'Ep')
+
+figure(7)
+hold on
+grid on
+title("Joints power")
+xlabel("t [s]")
+ylabel("P [W]")
+plot(tt, p1, LineWidth=1)
+plot(tt, p2, LineWidth=1)
+plot(tt, p3, LineWidth=1)
+plot(tt, pt, LineWidth=1)
+legend('Joint 1 power', 'Joint 2 power', 'Joint 3 power', 'Total power')
+
+% Energy derivative for debug
+de = diff(K+U)/dT;
+
+figure(8)
+hold on
+plot(tt, pt, LineWidth=1)
+plot(tt(2:end), de, '--', LineWidth=1)
+xlabel("t [s]")
+ylabel("P [W]")
+grid on
+title('Power')
+legend('Joints power', 'd(T+U)/dt')

@@ -1,4 +1,4 @@
-function [Q, Qd, Qdd] = invkin(L, P, Pd, Pdd)
+function [Q, Qd, Qdd] = invkin(L, P, Pd, Pdd, Q0)
 % INVKIN Computes the joint positions, velocities, and accelerations for the given robot.
 %
 % [Q, Qd, Qdd] = invkin(L, P, Pd, Pdd) calculates the joint positions (Q),
@@ -11,6 +11,7 @@ function [Q, Qd, Qdd] = invkin(L, P, Pd, Pdd)
 %   P   - Desired end-effector position [Px; Py; Pz].
 %   Pd  - Desired end-effector velocity [Pxd; Pyd; Pzd].
 %   Pdd - Desired end-effector acceleration [Pxdd; Pydd; Pzdd].
+%   Q0  - Initial guess.
 %
 % OUTPUT:
 %   Q   - Vector of joint positions [theta1; theta2; theta3].
@@ -45,9 +46,6 @@ F = @(Q)[
     L(3) + L(4) * cos(Q(2)) + L(2) * sin(Q(1)) + L(5) * cos(Q(2)) * cos(Q(3));
     -L(4) * sin(Q(2)) - L(5) * cos(Q(3)) * sin(Q(2))
 ];
-
-% Initial estimation of joint angles based on desired position P
-Q0 = [0, 0, 0]'; % Initial joint angle guess
 
 % Solve the nonlinear system for Q using Newton-Raphson method
 valid = false;

@@ -108,8 +108,8 @@ plot3([z0 z1i z1ii z2i z3 z4 z5],[y0 y1i y1ii y2i y3 y4 y5],[x0 x1i x1ii x2i x3 
 % end effector
 plot3(z5,y5,x5, 'diamond','color', colore, 'MarkerSize', 10, 'MarkerFaceColor', colore);
 % axis equal
-xlabel z
-ylabel y
-zlabel x
+xlabel("Z [m]")
+ylabel("Y [m]")
+zlabel("X [m]")
 grid on
 view(120,30)

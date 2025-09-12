@@ -1,4 +1,4 @@
-function [Mabs, Wabs, Habs, Labs] = dirkin(L, Q, Qd, Qdd)
+function [Mabs, Wabs, Habs, Labs, Wrel, Hrel] = dirkin(L, Q, Qd, Qdd)
 % DIRKIN - Computes the direct kinematics of a manipulator.
 %
 % This function calculates the position, velocity, and acceleration of the
@@ -149,6 +149,9 @@ Wabs(:,:,1) = zeros(4,4);
 Habs(:,:,1) = zeros(4,4);
 Labs(:,:,1) = zeros(4,4);
 
+Wrel(:,:,1) = zeros(4,4);
+Hrel(:,:,1) = zeros(4,4);
+
 for j=1:7
     if j==4
         Lr = Lry;
@@ -161,17 +164,17 @@ for j=1:7
     % H(:,:,4) = H(:,:,8)
     if j==6
         Labs(:,:,j) = M(:,:,1)*Lr/M(:,:,1);
-        Wrel_0 = Labs(:,:,j)*Qd(j);
-        Hrel_0 = Wrel_0^2+Labs(:,:,j)*Qdd(j);
-        Habs(:,:,j+1) = Habs(:,:,1)+Hrel_0+2*Wabs(:,:,1)*Wrel_0;
-        Wabs(:,:,j+1) = Wabs(:,:,1)+Wrel_0;
+        Wrel(:,:,j) = Labs(:,:,j)*Qd(j);
+        Hrel(:,:,j) = Wrel(:,:,j)^2+Labs(:,:,j)*Qdd(j);
+        Habs(:,:,j+1) = Habs(:,:,1)+Hrel(:,:,j)+2*Wabs(:,:,1)*Wrel(:,:,j);
+        Wabs(:,:,j+1) = Wabs(:,:,1)+Wrel(:,:,j);
         M(:,:,j+1)=M(:,:,1)*M(:,:,j+1);
     else
         Labs(:,:,j) = M(:,:,j)*Lr/M(:,:,j);
-        Wrel_0 = Labs(:,:,j)*Qd(j);
-        Hrel_0 = Wrel_0^2+Labs(:,:,j)*Qdd(j);
-        Habs(:,:,j+1) = Habs(:,:,j)+Hrel_0+2*Wabs(:,:,j)*Wrel_0;
-        Wabs(:,:,j+1) = Wabs(:,:,j)+Wrel_0;
+        Wrel(:,:,j) = Labs(:,:,j)*Qd(j);
+        Hrel(:,:,j) = Wrel(:,:,j)^2+Labs(:,:,j)*Qdd(j);
+        Habs(:,:,j+1) = Habs(:,:,j)+Hrel(:,:,j)+2*Wabs(:,:,j)*Wrel(:,:,j);
+        Wabs(:,:,j+1) = Wabs(:,:,j)+Wrel(:,:,j);
         M(:,:,j+1)=M(:,:,j)*M(:,:,j+1);
     end
 end

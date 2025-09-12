@@ -1,5 +1,5 @@
 function [q, qd, qdd, tt, T, t] = lineparabolas(theta, A, V, dt)
-%LINEPARABOLAS Generate 1D trajectory with parabolic blends through via points
+%LINEPARABOLAS Generate multi trajectory with parabolic blends through via points
 %   This function creates a time-optimal multi-dimensional trajectory consisting
 %   of linear segments connected by parabolic blends that passes exactly through
 %   the first and last via points, and near intermediate via points. The
