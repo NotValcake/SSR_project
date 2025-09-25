@@ -337,7 +337,7 @@ for t=1:length(tt) % generate motion in working space
     end
     
     % External forces acting on the end effector
-    Phie5 = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0];
+    Phie5 = [0 0 0 10; 0 0 0 10; 0 0 0 10; -10 -10 -10 0];
     Phie0 = Mabs(:,:,6)*Phie5*Mabs(:,:,6)';
     [~, torques(t,:)] = invdyn(Habs,Labs,J,Phie0,Hg,L,Q(:,t),Qd(:,t),Qdd(:,t),5);
 
@@ -353,7 +353,7 @@ for t=1:length(tt) % generate motion in working space
     p1(t) = torques(t,1)*Qd(1,t);
     p2(t) = torques(t,2)*Qd(2,t);
     p3(t) = torques(t,3)*Qd(3,t);
-    pt(t) = p1(t) + p2(t) + p3(t);
+    pt(t) = p1(t) + p2(t) + p3(t) - pseudot(Phie0,Wabs(:,:,6));
 end
 
 %% --------------------------- VISUALIZATION --------------------------- %%
@@ -378,7 +378,7 @@ plot3(coords(1,:),coords(2,:),  coords(3,:), "*-.")
 % zlim([-3 3])
 plot3([-2,3],[0,0],[0,0],'k')
 plot3([0,0],[0,4],[0,0],'k')
-plot3([0,0],[0,0],[-3,3],'k')
+plot3([0,0],[0,0],[-1,1],'k')
 axis equal
 
 title("Manipulator in workspace")
@@ -484,7 +484,7 @@ de = diff(K+U)/dT;
 
 figure(8)
 hold on
-plot(tt, pt, LineWidth=1)
+plot(tt, pt+pseudot(Phie0,Wabs(:,:,6)), LineWidth=1)
 plot(tt(2:end), de, '--', LineWidth=1)
 xlabel("t [s]")
 ylabel("P [W]")
