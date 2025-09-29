@@ -84,19 +84,19 @@ for i=1:length(tt)
     end
 end
 
-% Plot the three step trajectory of each actuator
-for i=1:d
-    figure(i)
-    hold on
-    plot(tt, Q(i,:), "-", LineWidth=1)
-    plot(tt, Qd(i,:), "-", LineWidth=1)
-    plot(tt, Qdd(i,:), "-", LineWidth=1)
-    grid on
-    title('Actuator ' + string(i))
-    legend('Q','Qd','Qdd')
-    xlabel("t [s]")
-    ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
-end
+% % Plot the three step trajectory of each actuator
+% for i=1:d
+%     figure(i)
+%     hold on
+%     plot(tt, Q(i,:), "-", LineWidth=1)
+%     plot(tt, Qd(i,:), "-", LineWidth=1)
+%     plot(tt, Qdd(i,:), "-", LineWidth=1)
+%     grid on
+%     title('Actuator ' + string(i))
+%     legend('Q','Qd','Qdd')
+%     xlabel("t [s]")
+%     ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
+% end
 
 %% ---------------------- LINE PARABOLAS SEGMENT ---------------------- %%
 
@@ -112,75 +112,75 @@ for j=2:length(xd_lp)
 end
 toc
 
-% Plot the lineparabolas trajectory
-for j = 1:d
-    figure(10+j)
-    subplot(3,1,1)
-    hold on
-    title('Position ' + string(j))
-    plot(tt_lp, q_lp(j,:), '-', Color = "#0072BD", LineWidth=1)
-    plot(T_lp, theta(j,2:end-1), 'k.--')
-    xlabel("t [s]")
-    ylabel("Q [rad]")
-    for i = 1:length(T_lp)
-        if i == 1
-            plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        elseif i == length(T)
-            plot([T_lp(i)-t_lp(i), T_lp(i)-(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        else
-            plot([T_lp(i)+t_lp(i)/2, T_lp(i)+(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-            plot([T_lp(i)-t_lp(i)/2, T_lp(i)+ -(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        end
-    end
-    ylim([min(theta(j,2:end-1)), max(theta(j,2:end-1))])
-
-    grid on
-    legend('Q', 'theta')
-
-    subplot(3,1,2)
-    hold on
-    title('Velocity ' + string(j))
-    plot(tt_lp, qd_lp(j,:), '-', Color = "#D95319", LineWidth=1)
-    plot([tt_lp(1), tt_lp(end)], [Vmax(j), Vmax(j)], 'r--')
-    plot([tt_lp(1), tt_lp(end)], -[Vmax(j), Vmax(j)], 'r--')
-    grid on
-    legend('Qd', 'Qd_{max}', 'Qd_{min}')
-    xlabel("t [s]")
-    ylabel("Qd [rad/s]")
-    for i = 1:length(T_lp)
-        if i == 1
-            plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        elseif i == length(T)
-            plot([T_lp(i)-t_lp(i), T_lp(i)-(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        else
-            plot([T_lp(i)+t_lp(i)/2, T_lp(i)+(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-            plot([T_lp(i)-t_lp(i)/2, T_lp(i)+ -(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        end
-    end
-    ylim([-Vmax(j), Vmax(j)])
-
-    subplot(3,1,3)
-    hold on
-    title('Acceleration ' + string(j))
-    plot(tt_lp, qdd_lp(j,:), '-', Color = "#EDB120", LineWidth=1)
-    plot([tt_lp(1), tt_lp(end)], [Amax(j), Amax(j)], 'r--')
-    plot([tt_lp(1), tt_lp(end)], -[Amax(j), Amax(j)], 'r--')
-    grid on
-    legend('Qdd', 'Qdd_{max}', 'Qdd_{min}')
-    xlabel("t [s]")
-    ylabel("Qdd [rad/s^2]")
-    for i = 1:length(T_lp)
-        if i == 1
-            plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        elseif i == length(T)
-            plot([T_lp(i)-t_lp(i), T_lp(i)-(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        else
-            plot([T_lp(i)+t_lp(i)/2, T_lp(i)+(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-            plot([T_lp(i)-t_lp(i)/2, T_lp(i)+ -(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
-        end
-    end
-    ylim([-Amax(j), Amax(j)])
-end
+% % Plot the lineparabolas trajectory
+% for j = 1:d
+%     figure(10+j)
+%     subplot(3,1,1)
+%     hold on
+%     title('Position ' + string(j))
+%     plot(tt_lp, q_lp(j,:), '-', Color = "#0072BD", LineWidth=1)
+%     plot(T_lp, theta(j,2:end-1), 'k.--')
+%     xlabel("t [s]")
+%     ylabel("Q [rad]")
+%     for i = 1:length(T_lp)
+%         if i == 1
+%             plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         elseif i == length(T)
+%             plot([T_lp(i)-t_lp(i), T_lp(i)-(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         else
+%             plot([T_lp(i)+t_lp(i)/2, T_lp(i)+(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%             plot([T_lp(i)-t_lp(i)/2, T_lp(i)+ -(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         end
+%     end
+%     ylim([min(theta(j,2:end-1)), max(theta(j,2:end-1))])
+% 
+%     grid on
+%     legend('Q', 'theta')
+% 
+%     subplot(3,1,2)
+%     hold on
+%     title('Velocity ' + string(j))
+%     plot(tt_lp, qd_lp(j,:), '-', Color = "#D95319", LineWidth=1)
+%     plot([tt_lp(1), tt_lp(end)], [Vmax(j), Vmax(j)], 'r--')
+%     plot([tt_lp(1), tt_lp(end)], -[Vmax(j), Vmax(j)], 'r--')
+%     grid on
+%     legend('Qd', 'Qd_{max}', 'Qd_{min}')
+%     xlabel("t [s]")
+%     ylabel("Qd [rad/s]")
+%     for i = 1:length(T_lp)
+%         if i == 1
+%             plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         elseif i == length(T)
+%             plot([T_lp(i)-t_lp(i), T_lp(i)-(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         else
+%             plot([T_lp(i)+t_lp(i)/2, T_lp(i)+(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%             plot([T_lp(i)-t_lp(i)/2, T_lp(i)+ -(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         end
+%     end
+%     ylim([-Vmax(j), Vmax(j)])
+% 
+%     subplot(3,1,3)
+%     hold on
+%     title('Acceleration ' + string(j))
+%     plot(tt_lp, qdd_lp(j,:), '-', Color = "#EDB120", LineWidth=1)
+%     plot([tt_lp(1), tt_lp(end)], [Amax(j), Amax(j)], 'r--')
+%     plot([tt_lp(1), tt_lp(end)], -[Amax(j), Amax(j)], 'r--')
+%     grid on
+%     legend('Qdd', 'Qdd_{max}', 'Qdd_{min}')
+%     xlabel("t [s]")
+%     ylabel("Qdd [rad/s^2]")
+%     for i = 1:length(T_lp)
+%         if i == 1
+%             plot([T_lp(i)+t_lp(i), T_lp(i)+(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         elseif i == length(T)
+%             plot([T_lp(i)-t_lp(i), T_lp(i)-(t_lp(i))], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         else
+%             plot([T_lp(i)+t_lp(i)/2, T_lp(i)+(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%             plot([T_lp(i)-t_lp(i)/2, T_lp(i)+ -(t_lp(i)/2)], [-1000,1000], 'k--', 'HandleVisibility', 'off')
+%         end
+%     end
+%     ylim([-Amax(j), Amax(j)])
+% end
 
 %% ------------------------ CYCLOIDAL SEGMENT ------------------------ %%
 
@@ -211,19 +211,19 @@ for i=1:length(tt_c)
     end
 end
 
-% Plot the three step trajectory of each actuator
-for i=1:d
-    figure(20+i)
-    hold on
-    plot(tt_c, q_c(i,:), "-", LineWidth=1)
-    plot(tt_c, qd_c(i,:), "-", LineWidth=1)
-    plot(tt_c, qdd_c(i,:), "-", LineWidth=1)
-    grid on
-    title('Actuator ' + string(i))
-    legend('Q','Qd','Qdd')
-    xlabel("t [s]")
-    ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
-end
+% % Plot the three step trajectory of each actuator
+% for i=1:d
+%     figure(20+i)
+%     hold on
+%     plot(tt_c, q_c(i,:), "-", LineWidth=1)
+%     plot(tt_c, qd_c(i,:), "-", LineWidth=1)
+%     plot(tt_c, qdd_c(i,:), "-", LineWidth=1)
+%     grid on
+%     title('Actuator ' + string(i))
+%     legend('Q','Qd','Qdd')
+%     xlabel("t [s]")
+%     ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
+% end
 
 %% ------------------------ MERGE TRAJECTORIES ------------------------ %%
 
@@ -237,19 +237,19 @@ Qdd = [Qdd qdd_lp qdd_c];
 % Qd = qd_lp;
 % Qdd = qdd_lp;
 
-% Plot the total trajectory of each actuator
-for i=1:d
-    figure(30+i)
-    hold on
-    plot(tt, Q(i,:), "-", LineWidth=1)
-    plot(tt, Qd(i,:), "-", LineWidth=1)
-    plot(tt, Qdd(i,:), "-", LineWidth=1)
-    grid on
-    title('Actuator ' + string(i))
-    legend('Q','Qd','Qdd')
-    xlabel("t [s]")
-    ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
-end
+% % Plot the total trajectory of each actuator
+% for i=1:d
+%     figure(30+i)
+%     hold on
+%     plot(tt, Q(i,:), "-", LineWidth=1)
+%     plot(tt, Qd(i,:), "-", LineWidth=1)
+%     plot(tt, Qdd(i,:), "-", LineWidth=1)
+%     grid on
+%     title('Actuator ' + string(i))
+%     legend('Q','Qd','Qdd')
+%     xlabel("t [s]")
+%     ylabel("Q [rad]    Qd [rad/s]    Qdd [rad/s^2]")
+% end
 
 %% ------------------ KNEMATIC AND DYNAMICS ANALYSIS ------------------ %%
 
@@ -337,7 +337,8 @@ for t=1:length(tt) % generate motion in working space
     end
     
     % External forces acting on the end effector
-    Phie5 = [0 0 0 10; 0 0 0 10; 0 0 0 10; -10 -10 -10 0];
+    % Phie5 = [0 0 0 10; 0 0 0 10; 0 0 0 10; -10 -10 -10 0];
+    Phie5 = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0];
     Phie0 = Mabs(:,:,6)*Phie5*Mabs(:,:,6)';
     [~, torques(t,:)] = invdyn(Habs,Labs,J,Phie0,Hg,L,Q(:,t),Qd(:,t),Qdd(:,t),5);
 
@@ -355,139 +356,214 @@ for t=1:length(tt) % generate motion in working space
     p3(t) = torques(t,3)*Qd(3,t);
     pt(t) = p1(t) + p2(t) + p3(t) - pseudot(Phie0,Wabs(:,:,6));
 end
+%% ---------------------------- SIMULATION ----------------------------- %%
+% Set simulation parameters
+W = 0.04; % Link width
+T = 0.02; % Link thickness
+rho = 1000; % Link density
 
+% Colors
+red = [0.8 0.3 0]; yellow = [0.8 0.8 0]; blue = [0.0 0.5 0.8];
+orange = [0.8 0.5 0.1]; black = [0 0 0]; alpha = 1;
+
+% Set simulation inputs
+Q1sim.time = tt'; Q2sim.time = tt'; Q3sim.time = tt';
+Q1sim.signals.values = Q(1,:)'; 
+Q2sim.signals.values = Q(2,:)'; 
+Q3sim.signals.values = Q(3,:)';
+
+simout = sim("simulation\manipulator_sim.slx",...
+    'StartTime', num2str(tt(1)), ...
+    'StopTime',  num2str(tt(end)));
+% close_system("simulation\manipulator_sim.slx")
 %% --------------------------- VISUALIZATION --------------------------- %%
-% Plot start and end configuration
-plotmanipulator(Q(:,1), L, 'r', 100);
-plotmanipulator(theta(:,2), L, 'k', 100);
-plotmanipulator(theta(:,end-1), L, 'k', 100);
-% for i=2:2000:length(tt)
-%     plotmanipulator2(Q(:,i), L, 'g', 100);
-% end
-plotmanipulator(Q(:,end), L, 'b', 100);
-plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
-plot3(coords(1,:),coords(2,:),  coords(3,:), "*-.")
+% % Plot start and end configuration
+% plotmanipulator(Q(:,1), L, 'r', 100);
+% plotmanipulator(theta(:,2), L, 'k', 100);
+% plotmanipulator(theta(:,end-1), L, 'k', 100);
+% % for i=2:2000:length(tt)
+% %     plotmanipulator2(Q(:,i), L, 'g', 100);
+% % end
+% plotmanipulator(Q(:,end), L, 'b', 100);
+% plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
+% plot3(coords(1,:),coords(2,:),  coords(3,:), "*-.")
+% 
+% % plot3([-10,10],[0,0],[0,0],'k')
+% % plot3([0,0],[-10,10],[0,0],'k')
+% % plot3([0,0],[0,0],[-10,10],'k')
+% 
+% % limits to be used with plotmanipulator2 results
+% % xlim([-2 3])
+% % ylim([0 4])
+% % zlim([-3 3])
+% plot3([-2,3],[0,0],[0,0],'k')
+% plot3([0,0],[0,4],[0,0],'k')
+% plot3([0,0],[0,0],[-1,1],'k')
+% axis equal
+% 
+% title("Manipulator in workspace")
+% xlabel("X [m]")
+% ylabel("Y [m]")
+% zlabel("Z [m]")
+% 
+% figure(102)
+% hold on
+% % Plot the computed position velocity and acceleration
+% plot(tt, reshape(P(1,end,:),1,[]), "-", LineWidth=1)
+% plot(tt, reshape(Pd(1,end,:),1,[]), "-", LineWidth=1)
+% plot(tt, reshape(Pdd(1,end,:),1,[]), "-", LineWidth=1)
+% % Plot numeric velocity and acceleration
+% plot(tt(2:end), diff(reshape(P(1,end,:),1,[]))/dT, "-.", LineWidth=1)
+% plot(tt(2:end),diff(reshape(Pd(1,end,:),1,[]))/dT, "-.", LineWidth=1)
+% grid on
+% title('X Linear')
+% legend('x','xd','xdd','xdn','xddn')
+% xlabel("t [s]")
+% ylabel("x [m]    xd [m/s]    xdd [m/s^2]")
+% 
+% figure(103)
+% hold on
+% plot(tt, reshape(P(2,end,:),1,[]), "-", LineWidth=1)
+% plot(tt, reshape(Pd(2,end,:),1,[]), "-", LineWidth=1)
+% plot(tt, reshape(Pdd(2,end,:),1,[]), "-", LineWidth=1)
+% % Plot numeric velocity and acceleration
+% plot(tt(2:end), diff(reshape(P(2,end,:),1,[]))/dT, "-.", LineWidth=1)
+% plot(tt(2:end),diff(reshape(Pd(2,end,:),1,[]))/dT, "-.", LineWidth=1)
+% grid on
+% title('Y Linear')
+% legend('y','yd','ydd','ydn','yddn')
+% xlabel("t [s]")
+% ylabel("y [m]    yd [m/s]    ydd [m/s^2]")
+% 
+% figure(104)
+% hold on
+% plot(tt, reshape(P(3,end,:),1,[]), "-", LineWidth=1)
+% plot(tt, reshape(Pd(3,end,:),1,[]), "-", LineWidth=1)
+% plot(tt, reshape(Pdd(3,end,:),1,[]), "-", LineWidth=1)
+% % Plot numeric velocity and acceleration
+% plot(tt(2:end), diff(reshape(P(3,end,:),1,[]))/dT, "-.", LineWidth=1)
+% plot(tt(2:end),diff(reshape(Pd(3,end,:),1,[]))/dT, "-.", LineWidth=1)
+% grid on
+% title('Z Linear')
+% legend('z','zd','zdd','zdn','zddn')
+% xlabel("t [s]")
+% ylabel("z [m]    zd [m/s]    zdd [m/s^2]")
+% 
+% figure(105)
+% hold on
+% plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
+% plot3(coords(1,:), coords(2,:), coords(3,:), "*-.")
+% % plot([0 T],[0 0], 'k')
+% grid on
+% title('Working space trajectory')
+% xlabel("X [m]")
+% ylabel("Y [m]")
+% zlabel("Z [m]")
+% legend("Robot trajectory", "Objective trajectory")
+% view(45,45)
+% 
+% figure(5)
+% hold on
+% plot(tt, torques(:,1), LineWidth=1)
+% plot(tt, torques(:,2), LineWidth=1)
+% plot(tt, torques(:,3), LineWidth=1)
+% xlabel("t [s]")
+% ylabel("T [Nm]")
+% % plot([0 T],[0 0], 'k')
+% grid on
+% title('Motor torques')
+% legend('theta2''','theta4','theta5')
+% 
+% figure(6)
+% hold on
+% xlabel("t [s]")
+% yyaxis left
+% ylabel("K [J]")
+% plot(tt, K, LineWidth=1)
+% yyaxis right
+% plot(tt, U, LineWidth=1)
+% ylabel("U [J]")
+% grid on
+% title('Energy')
+% legend('Ek', 'Ep')
+% 
+% figure(7)
+% hold on
+% grid on
+% title("Joints power")
+% xlabel("t [s]")
+% ylabel("P [W]")
+% plot(tt, p1, LineWidth=1)
+% plot(tt, p2, LineWidth=1)
+% plot(tt, p3, LineWidth=1)
+% plot(tt, pt, LineWidth=1)
+% legend('Joint 1 power', 'Joint 2 power', 'Joint 3 power', 'Total power')
+% 
+% % Energy derivative for debug
+% de = diff(K+U)/dT;
+% 
+% figure(8)
+% hold on
+% plot(tt, pt+pseudot(Phie0,Wabs(:,:,6)), LineWidth=1)
+% plot(tt(2:end), de, '--', LineWidth=1)
+% xlabel("t [s]")
+% ylabel("P [W]")
+% grid on
+% title('Power')
+% legend('Joints power', 'd(T+U)/dt')
 
-% plot3([-10,10],[0,0],[0,0],'k')
-% plot3([0,0],[-10,10],[0,0],'k')
-% plot3([0,0],[0,0],[-10,10],'k')
-
-% limits to be used with plotmanipulator2 results
-% xlim([-2 3])
-% ylim([0 4])
-% zlim([-3 3])
-plot3([-2,3],[0,0],[0,0],'k')
-plot3([0,0],[0,4],[0,0],'k')
-plot3([0,0],[0,0],[-1,1],'k')
-axis equal
-
-title("Manipulator in workspace")
-xlabel("X [m]")
-ylabel("Y [m]")
-zlabel("Z [m]")
-
-figure(102)
+figure(200)
 hold on
-% Plot the computed position velocity and acceleration
-plot(tt, reshape(P(1,end,:),1,[]), "-", LineWidth=1)
-plot(tt, reshape(Pd(1,end,:),1,[]), "-", LineWidth=1)
-plot(tt, reshape(Pdd(1,end,:),1,[]), "-", LineWidth=1)
-% Plot numeric velocity and acceleration
-plot(tt(2:end), diff(reshape(P(1,end,:),1,[]))/dT, "-.", LineWidth=1)
-plot(tt(2:end),diff(reshape(Pd(1,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
-title('X Linear')
-legend('x','xd','xdd','xdn','xddn')
+title("Simulation results")
 xlabel("t [s]")
-ylabel("x [m]    xd [m/s]    xdd [m/s^2]")
+ylabel("position [m]")
+plot(simout.p.Time,simout.p.Data(:,1),LineWidth=1,DisplayName="x simulation")
+plot(simout.p.Time,simout.p.Data(:,2),LineWidth=1,DisplayName="y simulation")
+plot(simout.p.Time,simout.p.Data(:,3),LineWidth=1,DisplayName="z simulation")
+plot(tt,reshape(P(1,end,:),1,[]),'--',LineWidth=1,DisplayName="x")
+plot(tt,reshape(P(2,end,:),1,[]),'--',LineWidth=1,DisplayName="y")
+plot(tt,reshape(P(3,end,:),1,[]),'--',LineWidth=1,DisplayName="z")
+legend
 
-figure(103)
+figure(201)
 hold on
-plot(tt, reshape(P(2,end,:),1,[]), "-", LineWidth=1)
-plot(tt, reshape(Pd(2,end,:),1,[]), "-", LineWidth=1)
-plot(tt, reshape(Pdd(2,end,:),1,[]), "-", LineWidth=1)
-% Plot numeric velocity and acceleration
-plot(tt(2:end), diff(reshape(P(2,end,:),1,[]))/dT, "-.", LineWidth=1)
-plot(tt(2:end),diff(reshape(Pd(2,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
-title('Y Linear')
-legend('y','yd','ydd','ydn','yddn')
+title("Simulation results")
 xlabel("t [s]")
-ylabel("y [m]    yd [m/s]    ydd [m/s^2]")
+ylabel("velocity [m/s]")
+plot(simout.pd.Time,simout.pd.Data(:,1),LineWidth=1,DisplayName="xd simulation")
+plot(simout.pd.Time,simout.pd.Data(:,2),LineWidth=1,DisplayName="yd simulation")
+plot(simout.pd.Time,simout.pd.Data(:,3),LineWidth=1,DisplayName="zd simulation")
+plot(tt,reshape(Pd(1,end,:),1,[]),'--',LineWidth=1,DisplayName="xd")
+plot(tt,reshape(Pd(2,end,:),1,[]),'--',LineWidth=1,DisplayName="yd")
+plot(tt,reshape(Pd(3,end,:),1,[]),'--',LineWidth=1,DisplayName="zd")
+legend
 
-figure(104)
+figure(202)
 hold on
-plot(tt, reshape(P(3,end,:),1,[]), "-", LineWidth=1)
-plot(tt, reshape(Pd(3,end,:),1,[]), "-", LineWidth=1)
-plot(tt, reshape(Pdd(3,end,:),1,[]), "-", LineWidth=1)
-% Plot numeric velocity and acceleration
-plot(tt(2:end), diff(reshape(P(3,end,:),1,[]))/dT, "-.", LineWidth=1)
-plot(tt(2:end),diff(reshape(Pd(3,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
-title('Z Linear')
-legend('z','zd','zdd','zdn','zddn')
+title("Simulation results")
 xlabel("t [s]")
-ylabel("z [m]    zd [m/s]    zdd [m/s^2]")
+ylabel("acceleration [m/s^2]")
+plot(simout.pdd.Time,simout.pdd.Data(:,1),LineWidth=1,DisplayName="xdd simulation")
+plot(simout.pdd.Time,simout.pdd.Data(:,2),LineWidth=1,DisplayName="ydd simulation")
+plot(simout.pdd.Time,simout.pdd.Data(:,3),LineWidth=1,DisplayName="zdd simulation")
+plot(tt,reshape(Pdd(1,end,:),1,[]),'--',LineWidth=1,DisplayName="xdd")
+plot(tt,reshape(Pdd(2,end,:),1,[]),'--',LineWidth=1,DisplayName="ydd")
+plot(tt,reshape(Pdd(3,end,:),1,[]),'--',LineWidth=1,DisplayName="zdd")
+legend
 
-figure(105)
+figure(203)
 hold on
-plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
-plot3(coords(1,:), coords(2,:), coords(3,:), "*-.")
-% plot([0 T],[0 0], 'k')
 grid on
-title('Working space trajectory')
-xlabel("X [m]")
-ylabel("Y [m]")
-zlabel("Z [m]")
-legend("Robot trajectory", "Objective trajectory")
-view(45,45)
-
-figure(5)
-hold on
-plot(tt, torques(:,1), LineWidth=1)
-plot(tt, torques(:,2), LineWidth=1)
-plot(tt, torques(:,3), LineWidth=1)
+title("Simulation results")
 xlabel("t [s]")
-ylabel("T [Nm]")
-% plot([0 T],[0 0], 'k')
-grid on
-title('Motor torques')
-legend('theta2''','theta4','theta5')
-
-figure(6)
-hold on
-xlabel("t [s]")
-yyaxis left
-ylabel("K [J]")
-plot(tt, K, LineWidth=1)
-yyaxis right
-plot(tt, U, LineWidth=1)
-ylabel("U [J]")
-grid on
-title('Energy')
-legend('Ek', 'Ep')
-
-figure(7)
-hold on
-grid on
-title("Joints power")
-xlabel("t [s]")
-ylabel("P [W]")
-plot(tt, p1, LineWidth=1)
-plot(tt, p2, LineWidth=1)
-plot(tt, p3, LineWidth=1)
-plot(tt, pt, LineWidth=1)
-legend('Joint 1 power', 'Joint 2 power', 'Joint 3 power', 'Total power')
-
-% Energy derivative for debug
-de = diff(K+U)/dT;
-
-figure(8)
-hold on
-plot(tt, pt+pseudot(Phie0,Wabs(:,:,6)), LineWidth=1)
-plot(tt(2:end), de, '--', LineWidth=1)
-xlabel("t [s]")
-ylabel("P [W]")
-grid on
-title('Power')
-legend('Joints power', 'd(T+U)/dt')
+ylabel("torque [Nm]")
+plot(simout.pdd.Time,simout.Fq.Data(:,1),LineWidth=1,DisplayName="theta2'' simulation")
+plot(simout.pdd.Time,simout.Fq.Data(:,2),LineWidth=1,DisplayName="theta4 simulation")
+plot(simout.pdd.Time,simout.Fq.Data(:,3),LineWidth=1,DisplayName="theta5 simulation")
+plot(tt,torques(:,1),'--',LineWidth=1,DisplayName="theta2''")
+plot(tt,torques(:,2),'--',LineWidth=1,DisplayName="theta4")
+plot(tt,torques(:,3),'--',LineWidth=1,DisplayName="theta5")
+legend

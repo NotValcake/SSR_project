@@ -1,6 +1,6 @@
-clear; close all; clc;
+% clear; close all; clc;
 
-L = 1
+L = [1, 1.1, 1, 1, .9];
 W = 0.04
 T = 0.02
 rho = 1000
@@ -11,4 +11,4 @@ orange = [0.8 0.5 0.1]
 black = [0 0 0]
 alpha = 1
 
-open_system('simulation/manipulator_sim.slx')
+% open_system('simulation/manipulator_sim.slx')
