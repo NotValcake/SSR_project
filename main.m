@@ -6,7 +6,7 @@ L = [1, 1.1, 1, 1, .9];
 numlinks = 5;
 
 % Mass of each link
-m = [1 1 1 1 1];
+m = [3.245734 3.461734 5.948601 3.245734 3.029734];
 
 % Inertia tensor for each link, using the equivalent 3 mass approximation
 % initialization of inertia matrix
@@ -41,8 +41,8 @@ coords = [P1(1) letterX P1(1);
     P1(2) letterY P1(2);
     P1(3) letterZ P1(3)];
 
-Amax = [0.05,0.05,0.05]';
-Vmax = [0.1,.1,.1]';
+Amax = [1,1,1]';
+Vmax = [1.5,1.5,2]';
 
 d = height(Amax);
 theta = zeros(d, length(coords));
@@ -90,7 +90,7 @@ end
 %     hold on
 %     plot(tt, Q(i,:), "-", LineWidth=1)
 %     plot(tt, Qd(i,:), "-", LineWidth=1)
-%     plot(tt, Qdd(i,:), "-", LineWidth=1)
+%     p lot(tt, Qdd(i,:), "-", LineWidth=1)
 %     grid on
 %     title('Actuator ' + string(i))
 %     legend('Q','Qd','Qdd')
@@ -358,9 +358,9 @@ for t=1:length(tt) % generate motion in working space
 end
 %% ---------------------------- SIMULATION ----------------------------- %%
 % Set simulation parameters
-W = 0.04; % Link width
-T = 0.02; % Link thickness
-rho = 1000; % Link density
+W = 0.04; % Link width in m
+T = 0.02; % Link thickness in m
+rho = 2700; % Link density in kg/m^3
 
 % Colors
 red = [0.8 0.3 0]; yellow = [0.8 0.8 0]; blue = [0.0 0.5 0.8];
@@ -372,198 +372,372 @@ Q1sim.signals.values = Q(1,:)';
 Q2sim.signals.values = Q(2,:)'; 
 Q3sim.signals.values = Q(3,:)';
 
-simout = sim("simulation\manipulator_sim.slx",...
+simout = sim("simulation\manipulator_sim_PID.slx",...
     'StartTime', num2str(tt(1)), ...
     'StopTime',  num2str(tt(end)));
 % close_system("simulation\manipulator_sim.slx")
 %% --------------------------- VISUALIZATION --------------------------- %%
-% % Plot start and end configuration
-% plotmanipulator(Q(:,1), L, 'r', 100);
-% plotmanipulator(theta(:,2), L, 'k', 100);
-% plotmanipulator(theta(:,end-1), L, 'k', 100);
-% % for i=2:2000:length(tt)
-% %     plotmanipulator2(Q(:,i), L, 'g', 100);
-% % end
-% plotmanipulator(Q(:,end), L, 'b', 100);
-% plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
-% plot3(coords(1,:),coords(2,:),  coords(3,:), "*-.")
-% 
-% % plot3([-10,10],[0,0],[0,0],'k')
-% % plot3([0,0],[-10,10],[0,0],'k')
-% % plot3([0,0],[0,0],[-10,10],'k')
-% 
-% % limits to be used with plotmanipulator2 results
-% % xlim([-2 3])
-% % ylim([0 4])
-% % zlim([-3 3])
-% plot3([-2,3],[0,0],[0,0],'k')
-% plot3([0,0],[0,4],[0,0],'k')
-% plot3([0,0],[0,0],[-1,1],'k')
-% axis equal
-% 
-% title("Manipulator in workspace")
-% xlabel("X [m]")
-% ylabel("Y [m]")
-% zlabel("Z [m]")
-% 
-% figure(102)
-% hold on
-% % Plot the computed position velocity and acceleration
-% plot(tt, reshape(P(1,end,:),1,[]), "-", LineWidth=1)
-% plot(tt, reshape(Pd(1,end,:),1,[]), "-", LineWidth=1)
-% plot(tt, reshape(Pdd(1,end,:),1,[]), "-", LineWidth=1)
-% % Plot numeric velocity and acceleration
-% plot(tt(2:end), diff(reshape(P(1,end,:),1,[]))/dT, "-.", LineWidth=1)
-% plot(tt(2:end),diff(reshape(Pd(1,end,:),1,[]))/dT, "-.", LineWidth=1)
-% grid on
-% title('X Linear')
-% legend('x','xd','xdd','xdn','xddn')
-% xlabel("t [s]")
-% ylabel("x [m]    xd [m/s]    xdd [m/s^2]")
-% 
-% figure(103)
-% hold on
-% plot(tt, reshape(P(2,end,:),1,[]), "-", LineWidth=1)
-% plot(tt, reshape(Pd(2,end,:),1,[]), "-", LineWidth=1)
-% plot(tt, reshape(Pdd(2,end,:),1,[]), "-", LineWidth=1)
-% % Plot numeric velocity and acceleration
-% plot(tt(2:end), diff(reshape(P(2,end,:),1,[]))/dT, "-.", LineWidth=1)
-% plot(tt(2:end),diff(reshape(Pd(2,end,:),1,[]))/dT, "-.", LineWidth=1)
-% grid on
-% title('Y Linear')
-% legend('y','yd','ydd','ydn','yddn')
-% xlabel("t [s]")
-% ylabel("y [m]    yd [m/s]    ydd [m/s^2]")
-% 
-% figure(104)
-% hold on
-% plot(tt, reshape(P(3,end,:),1,[]), "-", LineWidth=1)
-% plot(tt, reshape(Pd(3,end,:),1,[]), "-", LineWidth=1)
-% plot(tt, reshape(Pdd(3,end,:),1,[]), "-", LineWidth=1)
-% % Plot numeric velocity and acceleration
-% plot(tt(2:end), diff(reshape(P(3,end,:),1,[]))/dT, "-.", LineWidth=1)
-% plot(tt(2:end),diff(reshape(Pd(3,end,:),1,[]))/dT, "-.", LineWidth=1)
-% grid on
-% title('Z Linear')
-% legend('z','zd','zdd','zdn','zddn')
-% xlabel("t [s]")
-% ylabel("z [m]    zd [m/s]    zdd [m/s^2]")
-% 
-% figure(105)
-% hold on
-% plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
-% plot3(coords(1,:), coords(2,:), coords(3,:), "*-.")
-% % plot([0 T],[0 0], 'k')
-% grid on
-% title('Working space trajectory')
-% xlabel("X [m]")
-% ylabel("Y [m]")
-% zlabel("Z [m]")
-% legend("Robot trajectory", "Objective trajectory")
-% view(45,45)
-% 
-% figure(5)
-% hold on
-% plot(tt, torques(:,1), LineWidth=1)
-% plot(tt, torques(:,2), LineWidth=1)
-% plot(tt, torques(:,3), LineWidth=1)
-% xlabel("t [s]")
-% ylabel("T [Nm]")
-% % plot([0 T],[0 0], 'k')
-% grid on
-% title('Motor torques')
-% legend('theta2''','theta4','theta5')
-% 
-% figure(6)
-% hold on
-% xlabel("t [s]")
-% yyaxis left
-% ylabel("K [J]")
-% plot(tt, K, LineWidth=1)
-% yyaxis right
-% plot(tt, U, LineWidth=1)
-% ylabel("U [J]")
-% grid on
-% title('Energy')
-% legend('Ek', 'Ep')
-% 
-% figure(7)
-% hold on
-% grid on
-% title("Joints power")
-% xlabel("t [s]")
-% ylabel("P [W]")
-% plot(tt, p1, LineWidth=1)
-% plot(tt, p2, LineWidth=1)
-% plot(tt, p3, LineWidth=1)
-% plot(tt, pt, LineWidth=1)
-% legend('Joint 1 power', 'Joint 2 power', 'Joint 3 power', 'Total power')
-% 
-% % Energy derivative for debug
-% de = diff(K+U)/dT;
-% 
-% figure(8)
-% hold on
-% plot(tt, pt+pseudot(Phie0,Wabs(:,:,6)), LineWidth=1)
-% plot(tt(2:end), de, '--', LineWidth=1)
-% xlabel("t [s]")
-% ylabel("P [W]")
-% grid on
-% title('Power')
-% legend('Joints power', 'd(T+U)/dt')
+% Plot start and end configuration
+plotmanipulator(Q(:,1), L, 'r', 100);
+plotmanipulator(theta(:,2), L, 'k', 100);
+plotmanipulator(theta(:,end-1), L, 'k', 100);
+% for i=2:2000:length(tt)
+%     plotmanipulator2(Q(:,i), L, 'g', 100);
+% end
+plotmanipulator(Q(:,end), L, 'b', 100);
+plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
+plot3(coords(1,:),coords(2,:),  coords(3,:), "*-.")
 
-figure(200)
+% plot3([-10,10],[0,0],[0,0],'k')
+% plot3([0,0],[-10,10],[0,0],'k')
+% plot3([0,0],[0,0],[-10,10],'k')
+
+% limits to be used with plotmanipulator2 results
+% xlim([-2 3])
+% ylim([0 4])
+% zlim([-3 3])
+plot3([-2,3],[0,0],[0,0],'k')
+plot3([0,0],[0,4],[0,0],'k')
+plot3([0,0],[0,0],[-1,1],'k')
+axis equal
+
+title("Manipulator in workspace")
+xlabel("X [m]")
+ylabel("Y [m]")
+zlabel("Z [m]")
+
+figure(102)
+hold on
+% Plot the computed position velocity and acceleration
+plot(tt, reshape(P(1,end,:),1,[]), "-", LineWidth=1)
+plot(tt, reshape(Pd(1,end,:),1,[]), "-", LineWidth=1)
+plot(tt, reshape(Pdd(1,end,:),1,[]), "-", LineWidth=1)
+% Plot numeric velocity and acceleration
+plot(tt(2:end), diff(reshape(P(1,end,:),1,[]))/dT, "-.", LineWidth=1)
+plot(tt(2:end),diff(reshape(Pd(1,end,:),1,[]))/dT, "-.", LineWidth=1)
+grid on
+title('X Linear')
+legend('x','xd','xdd','xdn','xddn')
+xlabel("t [s]")
+ylabel("x [m]    xd [m/s]    xdd [m/s^2]")
+
+figure(103)
+hold on
+plot(tt, reshape(P(2,end,:),1,[]), "-", LineWidth=1)
+plot(tt, reshape(Pd(2,end,:),1,[]), "-", LineWidth=1)
+plot(tt, reshape(Pdd(2,end,:),1,[]), "-", LineWidth=1)
+% Plot numeric velocity and acceleration
+plot(tt(2:end), diff(reshape(P(2,end,:),1,[]))/dT, "-.", LineWidth=1)
+plot(tt(2:end),diff(reshape(Pd(2,end,:),1,[]))/dT, "-.", LineWidth=1)
+grid on
+title('Y Linear')
+legend('y','yd','ydd','ydn','yddn')
+xlabel("t [s]")
+ylabel("y [m]    yd [m/s]    ydd [m/s^2]")
+
+figure(104)
+hold on
+plot(tt, reshape(P(3,end,:),1,[]), "-", LineWidth=1)
+plot(tt, reshape(Pd(3,end,:),1,[]), "-", LineWidth=1)
+plot(tt, reshape(Pdd(3,end,:),1,[]), "-", LineWidth=1)
+% Plot numeric velocity and acceleration
+plot(tt(2:end), diff(reshape(P(3,end,:),1,[]))/dT, "-.", LineWidth=1)
+plot(tt(2:end),diff(reshape(Pd(3,end,:),1,[]))/dT, "-.", LineWidth=1)
+grid on
+title('Z Linear')
+legend('z','zd','zdd','zdn','zddn')
+xlabel("t [s]")
+ylabel("z [m]    zd [m/s]    zdd [m/s^2]")
+
+figure(105)
+hold on
+plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "-", LineWidth=1)
+plot3(coords(1,:), coords(2,:), coords(3,:), "*-.")
+% plot([0 T],[0 0], 'k')
+grid on
+title('Working space trajectory')
+xlabel("X [m]")
+ylabel("Y [m]")
+zlabel("Z [m]")
+legend("Robot trajectory", "Objective trajectory")
+view(45,45)
+
+figure(5)
+hold on
+plot(tt, torques(:,1), LineWidth=1)
+plot(tt, torques(:,2), LineWidth=1)
+plot(tt, torques(:,3), LineWidth=1)
+xlabel("t [s]")
+ylabel("T [Nm]")
+% plot([0 T],[0 0], 'k')
+grid on
+title('Motor torques')
+legend('theta2''','theta4','theta5')
+
+figure(6)
+hold on
+xlabel("t [s]")
+yyaxis left
+ylabel("K [J]")
+plot(tt, K, LineWidth=1)
+yyaxis right
+plot(tt, U, LineWidth=1)
+ylabel("U [J]")
+grid on
+title('Energy')
+legend('Ek', 'Ep')
+
+figure(7)
 hold on
 grid on
-title("Simulation results")
+title("Joints power")
+xlabel("t [s]")
+ylabel("P [W]")
+plot(tt, p1, LineWidth=1)
+plot(tt, p2, LineWidth=1)
+plot(tt, p3, LineWidth=1)
+plot(tt, pt, LineWidth=1)
+legend('Joint 1 power', 'Joint 2 power', 'Joint 3 power', 'Total power')
+
+% Energy derivative for debug
+de = diff(K+U)/dT;
+
+figure(8)
+hold on
+plot(tt, pt+pseudot(Phie0,Wabs(:,:,6)), LineWidth=1)
+plot(tt(2:end), de, '--', LineWidth=1)
+xlabel("t [s]")
+ylabel("P [W]")
+grid on
+title('Power')
+legend('Joints power', 'd(T+U)/dt')
+
+figure(200)
+subplot(3,1,1)
+hold on
+grid on
+title("Simulated vs. teorical x")
 xlabel("t [s]")
 ylabel("position [m]")
 plot(simout.p.Time,simout.p.Data(:,1),LineWidth=1,DisplayName="x simulation")
-plot(simout.p.Time,simout.p.Data(:,2),LineWidth=1,DisplayName="y simulation")
-plot(simout.p.Time,simout.p.Data(:,3),LineWidth=1,DisplayName="z simulation")
 plot(tt,reshape(P(1,end,:),1,[]),'--',LineWidth=1,DisplayName="x")
+legend
+
+subplot(3,1,2)
+hold on
+grid on
+title("Simulated vs. teorical y")
+xlabel("t [s]")
+ylabel("position [m]")
+plot(simout.p.Time,simout.p.Data(:,2),LineWidth=1,DisplayName="y simulation")
 plot(tt,reshape(P(2,end,:),1,[]),'--',LineWidth=1,DisplayName="y")
+legend
+
+subplot(3,1,3)
+hold on
+grid on
+title("Simulated vs. teorical z")
+xlabel("t [s]")
+ylabel("position [m]")
+plot(simout.p.Time,simout.p.Data(:,3),LineWidth=1,DisplayName="z simulation")
 plot(tt,reshape(P(3,end,:),1,[]),'--',LineWidth=1,DisplayName="z")
 legend
 
 figure(201)
+subplot(3,1,1)
 hold on
 grid on
-title("Simulation results")
+title("Simulated vs. teorical xd")
 xlabel("t [s]")
 ylabel("velocity [m/s]")
 plot(simout.pd.Time,simout.pd.Data(:,1),LineWidth=1,DisplayName="xd simulation")
-plot(simout.pd.Time,simout.pd.Data(:,2),LineWidth=1,DisplayName="yd simulation")
-plot(simout.pd.Time,simout.pd.Data(:,3),LineWidth=1,DisplayName="zd simulation")
 plot(tt,reshape(Pd(1,end,:),1,[]),'--',LineWidth=1,DisplayName="xd")
+legend
+
+subplot(3,1,2)
+hold on
+grid on
+title("Simulated vs. teorical xd")
+xlabel("t [s]")
+ylabel("velocity [m/s]")
+plot(simout.pd.Time,simout.pd.Data(:,2),LineWidth=1,DisplayName="yd simulation")
 plot(tt,reshape(Pd(2,end,:),1,[]),'--',LineWidth=1,DisplayName="yd")
+legend
+
+subplot(3,1,3)
+hold on
+grid on
+title("Simulated vs. teorical zd")
+xlabel("t [s]")
+ylabel("velocity [m/s]")
+plot(simout.pd.Time,simout.pd.Data(:,3),LineWidth=1,DisplayName="zd simulation")
 plot(tt,reshape(Pd(3,end,:),1,[]),'--',LineWidth=1,DisplayName="zd")
 legend
 
 figure(202)
+subplot(3,1,1)
 hold on
 grid on
-title("Simulation results")
+title("Simulated vs. teorical xdd")
 xlabel("t [s]")
 ylabel("acceleration [m/s^2]")
 plot(simout.pdd.Time,simout.pdd.Data(:,1),LineWidth=1,DisplayName="xdd simulation")
-plot(simout.pdd.Time,simout.pdd.Data(:,2),LineWidth=1,DisplayName="ydd simulation")
-plot(simout.pdd.Time,simout.pdd.Data(:,3),LineWidth=1,DisplayName="zdd simulation")
 plot(tt,reshape(Pdd(1,end,:),1,[]),'--',LineWidth=1,DisplayName="xdd")
+legend
+
+subplot(3,1,2)
+hold on
+grid on
+title("Simulated vs. teorical ydd")
+xlabel("t [s]")
+ylabel("acceleration [m/s^2]")
+plot(simout.pdd.Time,simout.pdd.Data(:,2),LineWidth=1,DisplayName="ydd simulation")
 plot(tt,reshape(Pdd(2,end,:),1,[]),'--',LineWidth=1,DisplayName="ydd")
+legend
+
+subplot(3,1,3)
+hold on
+grid on
+title("Simulated vs. teorical zdd")
+xlabel("t [s]")
+ylabel("acceleration [m/s^2]")
+plot(simout.pdd.Time,simout.pdd.Data(:,3),LineWidth=1,DisplayName="zdd simulation")
 plot(tt,reshape(Pdd(3,end,:),1,[]),'--',LineWidth=1,DisplayName="zdd")
 legend
 
 figure(203)
+subplot(3,1,1)
 hold on
 grid on
-title("Simulation results")
+title("Simulated vs. teorical q1")
+xlabel("t [s]")
+ylabel("position [rad]")
+plot(simout.q.Time,simout.q.Data(:,1),LineWidth=1,DisplayName="q1 simulation")
+plot(tt,Q(1,:),'--',LineWidth=1,DisplayName="q1")
+legend
+
+subplot(3,1,2)
+hold on
+grid on
+title("Simulated vs. teorical q2")
+xlabel("t [s]")
+ylabel("position [rad]")
+plot(simout.q.Time,simout.q.Data(:,2),LineWidth=1,DisplayName="q2 simulation")
+plot(tt,Q(2,:),'--',LineWidth=1,DisplayName="q2")
+legend
+
+subplot(3,1,3)
+hold on
+grid on
+title("Simulated vs. teorical q3")
+xlabel("t [s]")
+ylabel("position [rad]")
+plot(simout.q.Time,simout.q.Data(:,3),LineWidth=1,DisplayName="q3 simulation")
+plot(tt,Q(3,:),'--',LineWidth=1,DisplayName="q3")
+legend
+
+figure(204)
+subplot(3,1,1)
+hold on
+grid on
+title("Simulated vs. teorical qd1")
+xlabel("t [s]")
+ylabel("velocity [rad/s]")
+plot(simout.qd.Time,simout.qd.Data(:,1),LineWidth=1,DisplayName="qd1 simulation")
+plot(tt,Qd(1,:),'--',LineWidth=1,DisplayName="qd1")
+legend
+
+subplot(3,1,2)
+hold on
+grid on
+title("Simulated vs. teorical qd2")
+xlabel("t [s]")
+ylabel("velocity [rad/s]")
+plot(simout.qd.Time,simout.qd.Data(:,2),LineWidth=1,DisplayName="qd2 simulation")
+plot(tt,Qd(2,:),'--',LineWidth=1,DisplayName="qd2")
+legend
+
+subplot(3,1,3)
+hold on
+grid on
+title("Simulated vs. teorical qd3")
+xlabel("t [s]")
+ylabel("velocity [rad/s]")
+plot(simout.qd.Time,simout.qd.Data(:,3),LineWidth=1,DisplayName="qd3 simulation")
+plot(tt,Qd(3,:),'--',LineWidth=1,DisplayName="qd3")
+legend
+
+figure(205)
+subplot(3,1,1)
+hold on
+grid on
+title("Simulated vs. teorical qdd1")
+xlabel("t [s]")
+ylabel("acceleration [rad/s^2]")
+plot(simout.qdd.Time,simout.qdd.Data(:,1),LineWidth=1,DisplayName="qdd1 simulation")
+plot(tt,Qdd(1,:),'--',LineWidth=1,DisplayName="qdd1")
+legend
+
+subplot(3,1,2)
+hold on
+grid on
+title("Simulated vs. teorical qdd2")
+xlabel("t [s]")
+ylabel("acceleration [rad/s^2]")
+plot(simout.qdd.Time,simout.qdd.Data(:,2),LineWidth=1,DisplayName="qdd2 simulation")
+plot(tt,Qdd(2,:),'--',LineWidth=1,DisplayName="qdd2")
+legend
+
+subplot(3,1,3)
+hold on
+grid on
+title("Simulated vs. teorical qdd3")
+xlabel("t [s]")
+ylabel("acceleration [rad/s^2]")
+plot(simout.qdd.Time,simout.qdd.Data(:,3),LineWidth=1,DisplayName="qdd3 simulation")
+plot(tt,Qdd(3,:),'--',LineWidth=1,DisplayName="qdd3")
+legend
+
+figure(206)
+subplot(3,1,1)
+hold on
+grid on
+title("Simulated vs. teorical torque on joint 2")
 xlabel("t [s]")
 ylabel("torque [Nm]")
-plot(simout.pdd.Time,simout.Fq.Data(:,1),LineWidth=1,DisplayName="theta2'' simulation")
-plot(simout.pdd.Time,simout.Fq.Data(:,2),LineWidth=1,DisplayName="theta4 simulation")
-plot(simout.pdd.Time,simout.Fq.Data(:,3),LineWidth=1,DisplayName="theta5 simulation")
-plot(tt,torques(:,1),'--',LineWidth=1,DisplayName="theta2''")
+plot(simout.Fq.Time,simout.Fq.Data(:,1),LineWidth=1,DisplayName="theta2' simulation")
+plot(tt,torques(:,1),'--',LineWidth=1,DisplayName="theta2'")
+legend
+
+subplot(3,1,2)
+hold on
+grid on
+title("Simulated vs. teorical torque on joint 4")
+xlabel("t [s]")
+ylabel("torque [Nm]")
+plot(simout.Fq.Time,simout.Fq.Data(:,2),LineWidth=1,DisplayName="theta4 simulation")
 plot(tt,torques(:,2),'--',LineWidth=1,DisplayName="theta4")
+legend
+
+subplot(3,1,3)
+hold on
+grid on
+title("Simulated vs. teorical torque on joint 5")
+xlabel("t [s]")
+ylabel("torque [Nm]")
+plot(simout.Fq.Time,simout.Fq.Data(:,3),LineWidth=1,DisplayName="theta5 simulation")
 plot(tt,torques(:,3),'--',LineWidth=1,DisplayName="theta5")
 legend
+
+figure(207)
+hold on
+plot3(reshape(P(1,end,:),1,[]), reshape(P(2,end,:),1,[]), reshape(P(3,end,:),1,[]), "--", LineWidth=1)
+plot3(simout.p.Data(:,1), simout.p.Data(:,2), simout.p.Data(:,3), "-", LineWidth=1)
+plot3(coords(1,:), coords(2,:), coords(3,:), "k*")
+grid on
+title('Working space trajectory')
+xlabel("X [m]")
+ylabel("Y [m]")
+zlabel("Z [m]")
+legend("Calculated trajectory","Simulated trajectory", "Objective trajectory")
+view(45,45)
