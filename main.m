@@ -1,11 +1,12 @@
 clear; close all; clc;
+addpath("simulation\");
 
 % Define the lengths of each link
 L = [1, 1.1, 1, 1, .9];
 
 numlinks = 5;
 
-% Mass of each link
+% Mass of each link (Assuming robot is made of Aluminium
 m = [3.245734 3.461734 5.948601 3.245734 3.029734];
 
 % Inertia tensor for each link, using the equivalent 3 mass approximation
@@ -112,7 +113,8 @@ for j=2:length(xd_lp)
 end
 toc
 
-% % Plot the lineparabolas trajectory
+% % Plot the lineparabolas trajectory (works with joint space generated
+% % trajectories)
 % for j = 1:d
 %     figure(10+j)
 %     subplot(3,1,1)
@@ -253,6 +255,7 @@ Qdd = [Qdd qdd_lp qdd_c];
 
 %% ------------------ KNEMATIC AND DYNAMICS ANALYSIS ------------------ %%
 
+% External forces acting on the end effector
 Phie5 = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0];
 
 % Initialize position, velocity and acceleration vectors
@@ -262,14 +265,6 @@ Pdd = zeros(4,4,length(tt));
 
 % Initialize torques vector
 torques = zeros(length(tt),d);
-
-% Initialize energy and power vectors
-U = zeros(1,length(tt));
-K = zeros(1,length(tt));
-p1 = zeros(1,length(tt));
-p2 = zeros(1,length(tt));
-p3 = zeros(1,length(tt));
-pt = zeros(1,length(tt));
 
 for t=1:length(tt) % generate motion in working space
     
@@ -283,14 +278,6 @@ for t=1:length(tt) % generate motion in working space
 
     % Inertia moments calculations
     for j = 1:1:length(L)
-        % I(:,:,j)=eye(3);
-        % J(:,:,j)=eye(4);
-        % if j==2
-        %     J(:,:,j) = Mabs(:,:,7)*J(:,:,j)*Mabs(:,:,7)';
-        % else
-        %     J(:,:,j)=Mabs(:,:,j+1)*J(:,:,j)*Mabs(:,:,j+1)';
-        % end
-
         % calculate inertia moments with respect to the center of gravity
         if j==3 % link 3 is a special case
 
@@ -336,25 +323,8 @@ for t=1:length(tt) % generate motion in working space
         end
     end
     
-    % External forces acting on the end effector
-    % Phie5 = [0 0 0 10; 0 0 0 10; 0 0 0 10; -10 -10 -10 0];
-    Phie5 = [0 0 0 0; 0 0 0 0; 0 0 0 0; 0 0 0 0];
     Phie0 = Mabs(:,:,6)*Phie5*Mabs(:,:,6)';
     [~, torques(t,:)] = invdyn(Habs,Labs,J,Phie0,Hg,L,Q(:,t),Qd(:,t),Qdd(:,t),5);
-
-    % Kinetic and potential energy computation
-    for l = 1:1:size(J,3)
-        if l == 2
-            K(t) = K(t) + 1/2*trace(Wabs(:,:,7)*J(:,:,l)*Wabs(:,:,7)');
-        else
-            K(t) = K(t) + 1/2*trace(Wabs(:,:,l+1)*J(:,:,l)*Wabs(:,:,l+1)');
-        end
-        U(t) = U(t) - trace(Hg*J(:,:,l));
-    end
-    p1(t) = torques(t,1)*Qd(1,t);
-    p2(t) = torques(t,2)*Qd(2,t);
-    p3(t) = torques(t,3)*Qd(3,t);
-    pt(t) = p1(t) + p2(t) + p3(t) - pseudot(Phie0,Wabs(:,:,6));
 end
 %% ---------------------------- SIMULATION ----------------------------- %%
 % Set simulation parameters
@@ -372,15 +342,22 @@ Q1sim.signals.values = Q(1,:)';
 Q2sim.signals.values = Q(2,:)'; 
 Q3sim.signals.values = Q(3,:)';
 
+% Extract points to visualize path in simulation
+xpath = reshape(P(1,end,:),1,[]);
+ypath = reshape(P(2,end,:),1,[]);
+zpath = reshape(P(3,end,:),1,[]);
+
 simout = sim("simulation\manipulator_sim_PID.slx",...
     'StartTime', num2str(tt(1)), ...
     'StopTime',  num2str(tt(end)));
-% close_system("simulation\manipulator_sim.slx")
+
 %% --------------------------- VISUALIZATION --------------------------- %%
 % Plot start and end configuration
 plotmanipulator(Q(:,1), L, 'r', 100);
 plotmanipulator(theta(:,2), L, 'k', 100);
 plotmanipulator(theta(:,end-1), L, 'k', 100);
+
+% Plot intermediate positions for debug
 % for i=2:2000:length(tt)
 %     plotmanipulator2(Q(:,i), L, 'g', 100);
 % end
@@ -412,12 +389,9 @@ hold on
 plot(tt, reshape(P(1,end,:),1,[]), "-", LineWidth=1)
 plot(tt, reshape(Pd(1,end,:),1,[]), "-", LineWidth=1)
 plot(tt, reshape(Pdd(1,end,:),1,[]), "-", LineWidth=1)
-% Plot numeric velocity and acceleration
-plot(tt(2:end), diff(reshape(P(1,end,:),1,[]))/dT, "-.", LineWidth=1)
-plot(tt(2:end),diff(reshape(Pd(1,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
 title('X Linear')
-legend('x','xd','xdd','xdn','xddn')
+legend('x','xd','xdd')
 xlabel("t [s]")
 ylabel("x [m]    xd [m/s]    xdd [m/s^2]")
 
@@ -426,12 +400,9 @@ hold on
 plot(tt, reshape(P(2,end,:),1,[]), "-", LineWidth=1)
 plot(tt, reshape(Pd(2,end,:),1,[]), "-", LineWidth=1)
 plot(tt, reshape(Pdd(2,end,:),1,[]), "-", LineWidth=1)
-% Plot numeric velocity and acceleration
-plot(tt(2:end), diff(reshape(P(2,end,:),1,[]))/dT, "-.", LineWidth=1)
-plot(tt(2:end),diff(reshape(Pd(2,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
 title('Y Linear')
-legend('y','yd','ydd','ydn','yddn')
+legend('y','yd','ydd')
 xlabel("t [s]")
 ylabel("y [m]    yd [m/s]    ydd [m/s^2]")
 
@@ -440,12 +411,9 @@ hold on
 plot(tt, reshape(P(3,end,:),1,[]), "-", LineWidth=1)
 plot(tt, reshape(Pd(3,end,:),1,[]), "-", LineWidth=1)
 plot(tt, reshape(Pdd(3,end,:),1,[]), "-", LineWidth=1)
-% Plot numeric velocity and acceleration
-plot(tt(2:end), diff(reshape(P(3,end,:),1,[]))/dT, "-.", LineWidth=1)
-plot(tt(2:end),diff(reshape(Pd(3,end,:),1,[]))/dT, "-.", LineWidth=1)
 grid on
 title('Z Linear')
-legend('z','zd','zdd','zdn','zddn')
+legend('z','zd','zdd')
 xlabel("t [s]")
 ylabel("z [m]    zd [m/s]    zdd [m/s^2]")
 
@@ -461,56 +429,6 @@ ylabel("Y [m]")
 zlabel("Z [m]")
 legend("Robot trajectory", "Objective trajectory")
 view(45,45)
-
-figure(5)
-hold on
-plot(tt, torques(:,1), LineWidth=1)
-plot(tt, torques(:,2), LineWidth=1)
-plot(tt, torques(:,3), LineWidth=1)
-xlabel("t [s]")
-ylabel("T [Nm]")
-% plot([0 T],[0 0], 'k')
-grid on
-title('Motor torques')
-legend('theta2''','theta4','theta5')
-
-figure(6)
-hold on
-xlabel("t [s]")
-yyaxis left
-ylabel("K [J]")
-plot(tt, K, LineWidth=1)
-yyaxis right
-plot(tt, U, LineWidth=1)
-ylabel("U [J]")
-grid on
-title('Energy')
-legend('Ek', 'Ep')
-
-figure(7)
-hold on
-grid on
-title("Joints power")
-xlabel("t [s]")
-ylabel("P [W]")
-plot(tt, p1, LineWidth=1)
-plot(tt, p2, LineWidth=1)
-plot(tt, p3, LineWidth=1)
-plot(tt, pt, LineWidth=1)
-legend('Joint 1 power', 'Joint 2 power', 'Joint 3 power', 'Total power')
-
-% Energy derivative for debug
-de = diff(K+U)/dT;
-
-figure(8)
-hold on
-plot(tt, pt+pseudot(Phie0,Wabs(:,:,6)), LineWidth=1)
-plot(tt(2:end), de, '--', LineWidth=1)
-xlabel("t [s]")
-ylabel("P [W]")
-grid on
-title('Power')
-legend('Joints power', 'd(T+U)/dt')
 
 figure(200)
 subplot(3,1,1)
